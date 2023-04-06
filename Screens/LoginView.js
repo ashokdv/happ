@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, TextInput, Image, KeyboardAvoidingView, TouchableOpacity} from 'react-native';
 import { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged} from '../firebase';
 // https://firebase.google.com/docs/auth/web/start?authuser=0&hl=en#web-version-9_2
-// import { HomeView } from './HomeView.js';
+// import { RegisterView } from './RegisterView.js';
 
 const LoginView = () => {
 
@@ -23,12 +23,23 @@ const LoginView = () => {
     }, [])
 
     const signUp = () => {
-        createUserWithEmailAndPassword(auth, email, password)
-            .then(userCredential => {
-                let userCred = userCredential.user;
-                console.log("---user name", userCred.email)
-            })
-            .catch(error => alert(error.message));
+        navigation.navigate('RegisterPage');
+        // createUserWithEmailAndPassword(auth, email, password)
+        //     .then(userCredential => {
+        //         let userCred = userCredential.user;
+        //         console.log("---user name", userCred.email)
+        //     })
+        //     .catch(error => alert(error.message));
+    }
+
+    const reset = () => {
+        navigation.navigate('ResetPasswordPage');
+        // createUserWithEmailAndPassword(auth, email, password)
+        //     .then(userCredential => {
+        //         let userCred = userCredential.user;
+        //         console.log("---user name", userCred.email)
+        //     })
+        //     .catch(error => alert(error.message));
     }
 
     const login = () => {
@@ -73,13 +84,20 @@ const LoginView = () => {
                     </Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
+                {/* <TouchableOpacity
                 onPress={signUp}
                 style={[styles.button, styles.buttonOutline]}>
                     <Text style={styles.buttonOutlineText}>
                         Register
                     </Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
+             </View>
+             
+             <View style={styles.bottomView}>
+                <Text style={styles.bottomText}>Don't have an account? <Text style={styles.bottomClick} onPress={signUp}>Sign up</Text></Text>
+            </View>
+            <View style={styles.bottomView}>
+                <Text style={styles.bottomText}> Forgot Password? <Text style={styles.bottomClick} onPress={reset}> Reset </Text></Text>
             </View>
         </KeyboardAvoidingView>
       )
@@ -144,6 +162,19 @@ const styles = StyleSheet.create({
     image: {
         width: 200,
         height:100
+    },
+    bottomView: {
+        alignItems: "center",
+        marginTop: 20
+    },
+    bottomText: {
+        fontSize: 16,
+        color: '#2e2e2d'
+    },
+    bottomClick: {
+        color: "#788eec",
+        fontWeight: "bold",
+        fontSize: 20
     }
 })
 
