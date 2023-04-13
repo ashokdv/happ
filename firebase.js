@@ -3,8 +3,8 @@
 import  {initializeApp}  from "firebase/app";
 import { getAuth,sendPasswordResetEmail, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 // import * as firebase from 'firebase/app';
-import { getFirestore, collection, addDoc } from "firebase/firestore";
-
+import { getFirestore, collection, addDoc, query, getDocs, where } from "firebase/firestore";
+import { getDatabase } from "firebase/database";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -31,5 +31,7 @@ const db = getFirestore(app);
 // console.log(auth);
 console.log("-------", db);
 
+export { auth, signInWithEmailAndPassword,sendPasswordResetEmail, createUserWithEmailAndPassword, onAuthStateChanged, signOut, db, collection, addDoc
+, query, getDocs, where };
 
-export { auth, signInWithEmailAndPassword,sendPasswordResetEmail, createUserWithEmailAndPassword, onAuthStateChanged, signOut, db, collection, addDoc };
+

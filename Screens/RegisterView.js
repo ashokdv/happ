@@ -1,11 +1,12 @@
 import { useNavigation } from '@react-navigation/core';
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, TextInput, Image, KeyboardAvoidingView, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View, TextInput, Image, KeyboardAvoidingView, TouchableOpacity, Button} from 'react-native';
 import { auth, createUserWithEmailAndPassword, db, addDoc, collection} from '../firebase';
 import { ScrollView } from 'react-native';
 // https://firebase.google.com/docs/auth/web/start?authuser=0&hl=en#web-version-9_2
 // import { HomeView } from './HomeView.js';
 // import {firebase} from '../firebase.js';
+// import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 const RegisterView = () => {
     const navigation = useNavigation();
@@ -62,6 +63,22 @@ const RegisterView = () => {
         });
     }
 
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+
+    const showDatePicker = () => {
+        setDatePickerVisibility(true);
+    };
+
+    const hideDatePicker = () => {
+        setDatePickerVisibility(false);
+    };
+
+    const handleConfirm = (date) => {
+        console.warn("A date has been picked: ", date);
+        hideDatePicker();
+    };
+
+
     return (
         <ScrollView >
         <KeyboardAvoidingView
@@ -98,6 +115,15 @@ const RegisterView = () => {
             style={styles.inputText}
             placeholderTextColor="black"
             />
+            {/* <View>
+            <Button title="Show Date Picker" onPress={showDatePicker} />
+            <DateTimePickerModal
+                isVisible={isDatePickerVisible}
+                mode="date"
+                onConfirm={handleConfirm}
+                onCancel={hideDatePicker}
+            />
+            </View> */}
             <View style={styles.buttonView}>
                 <TouchableOpacity
                 onPress={onRegister}
