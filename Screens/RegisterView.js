@@ -80,12 +80,12 @@ const RegisterView = () => {
 
 
     return (
-        <ScrollView >
+        <ScrollView style = {{flex: 1}}>
         <KeyboardAvoidingView
             style={styles.container}
             behavior="padding"
         >
-         <Image source = {require('../images/happ.png')} style={styles.image} />
+         <Image source = {require('../images/happiness.png')} style={styles.image} />
           <View style={styles.inputContainer}>
             <TextInput
             placeholder = "Enter your full name"
@@ -157,7 +157,7 @@ export default RegisterView;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        // justifyContent: 'center',
         alignItems: 'center'
     },
     inputContainer: {
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
         color: 'black'
     },
     image: {
-        width: 200,
+        width: 100,
         height:100
     }
 })

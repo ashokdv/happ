@@ -3,10 +3,18 @@ import { StyleSheet, Text, View, Button, TouchableOpacity, Alert } from 'react-n
 import {useNavigation} from '@react-navigation/core';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { auth, signOut } from '../firebase';
-import { TextInput } from 'react-native-gesture-handler';
+import { ScrollView, TextInput } from 'react-native-gesture-handler';
 import { db, addDoc, collection, query, getDocs,} from '../firebase';
 import { doc, setDoc, getDoc, where, updateDoc } from "firebase/firestore"; 
 //TODO: Add date picker for DOB 
+import Management from './Management.js';
+import { MultipleSelectList } from 'react-native-dropdown-select-list'
+
+function ManagementView({navigation}) {
+  return (
+    <Management />
+  )
+}
 
 function HomeScreen({ navigation }) {
   return (
@@ -69,7 +77,21 @@ function ProfileScreen({ navigation }) {
     navigation.addListener("focus", () => setLoading(!loading));
   }, [navigation, loading]);
  
+  const [selected, setSelected] = React.useState("");
+  
+  const data = [
+      {key:'1', value:'Mobiles', disabled:true},
+      {key:'2', value:'Appliances'},
+      {key:'3', value:'Cameras'},
+      {key:'4', value:'Computers', disabled:true},
+      {key:'5', value:'Vegetables'},
+      {key:'6', value:'Diary Products'},
+      {key:'7', value:'Drinks'},
+  ]
+
+
   return (
+    <ScrollView>
     <View style={styles.profileScreen}>
       <View style={styles.inputContainer}> 
         <TextInput
@@ -102,6 +124,17 @@ function ProfileScreen({ navigation }) {
           autoCorrect={false}
         />    
       </View>
+      <View style={styles.inputContainer}>
+        <MultipleSelectList 
+          setSelected={(val) => setSelected(val)} 
+          data={data} 
+          save="value"
+          label="hobbies"
+          boxStyles={{marginTop:10, width: '100%'}}
+          placeholder='Select Hobbies'
+      />
+      </View>
+      
 
       <View style={styles.buttonView}>
         <TouchableOpacity
@@ -113,8 +146,8 @@ function ProfileScreen({ navigation }) {
         </TouchableOpacity>
 
       </View>
-
-    </View>
+      </View>
+    </ScrollView>
   );
 }
 
@@ -166,7 +199,7 @@ const HomeView = () => {
       drawerContent={ (props) => <CustomDrawerContent {...props}/>} >
       <Drawer.Screen name="Home" component={HomeScreen}/>
       <Drawer.Screen name="Profile" component={ProfileScreen}/>
-      <Drawer.Screen name="Logout" component={LogoutScreen} />
+      <Drawer.Screen name="Management" component={ManagementView}/>
     </Drawer.Navigator> 
   )
 }
@@ -190,7 +223,9 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     width: '80%',
-    borderRadius:'20%'
+    borderRadius:'20%',
+    // justifyContent: 'center',
+    // alignItems: 'center'
   },
   profileScreen: {
     flex: 1,

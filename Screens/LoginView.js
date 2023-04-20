@@ -56,7 +56,7 @@ const LoginView = () => {
             style={styles.container}
             behavior="padding"
         >
-        <Image source = {require('../images/happ.png')} style={styles.image} />
+        <Image source = {require('../images/happiness.png')} style={styles.image} />
           <View style={styles.inputContainer}>
             <TextInput
             placeholder = "Email"
@@ -111,7 +111,8 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        color: 'blue'
     },
     inputContainer: {
         width: '80%',
@@ -160,8 +161,8 @@ const styles = StyleSheet.create({
         color: 'black'
     },
     image: {
-        width: 200,
-        height:100
+        width: 150,
+        height:150
     },
     bottomView: {
         alignItems: "center",
