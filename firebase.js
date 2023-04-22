@@ -22,14 +22,10 @@ const firebaseConfig = {
 // Initialize Firebase
 
 const app = initializeApp(firebaseConfig);
-// console.log(app);
 
 const auth = getAuth(app);
-console.log("auth ",auth);
 
 const db = getFirestore(app);
-// console.log(auth);
-console.log("-------", db);
 
 export { auth, signInWithEmailAndPassword,sendPasswordResetEmail, createUserWithEmailAndPassword, onAuthStateChanged, signOut, db, collection, addDoc
 , query, getDocs, where };

@@ -13,9 +13,8 @@ const LoginView = () => {
 
     useEffect(() => {
         const logout = onAuthStateChanged(auth, (user) => {
-            console.log("---User", user);
             if(user) {
-                navigation.replace("HomePage")
+                navigation.replace("Happ")
             }
         })
 
@@ -23,7 +22,7 @@ const LoginView = () => {
     }, [])
 
     const signUp = () => {
-        navigation.navigate('RegisterPage');
+        navigation.navigate('Register');
         // createUserWithEmailAndPassword(auth, email, password)
         //     .then(userCredential => {
         //         let userCred = userCredential.user;
@@ -33,7 +32,7 @@ const LoginView = () => {
     }
 
     const reset = () => {
-        navigation.navigate('ResetPasswordPage');
+        navigation.navigate('Reset Password');
         // createUserWithEmailAndPassword(auth, email, password)
         //     .then(userCredential => {
         //         let userCred = userCredential.user;

@@ -23,7 +23,7 @@ import { Dimensions } from "react-native";
 const screenWidth = Dimensions.get("window").width;
 
 import {
-  LineChart
+  LineChart, StackedBarChart
 } from "react-native-chart-kit";
 import { db, addDoc, collection, query, getDocs,} from '../firebase';
 import { doc, setDoc, getDoc, where, updateDoc } from "firebase/firestore"; 
@@ -61,13 +61,22 @@ function Management() {
       await setDoc(userUpdateData, {
         weights: temp,
       }, {merge: true}).then(() => {
-        console.log('Weight Updated!');
         Alert.alert(
           'Weight Added for today'        );
       }).catch((err) => {err.message})
     }
 
   }
+
+  const emotion_data = {
+    labels: ["Test1", "Test2"],
+    legend: ["L1", "L2", "L3"],
+    data: [
+      [20, 20, 60],
+      [40, 40, 20]
+    ],
+    barColors: ["#dfe4ea", "#ced6e0", "#a4b0be"]
+  };
 
   const getWeightData = async() => {
 
@@ -84,7 +93,6 @@ function Management() {
       }
       setID(weight_data[0].id);
       // let arr = sortObj(weight_data[0].weights);
-      // console.log("----", weight_data[0].weights);
       let weights = []
       // let dates = []
       const currentDate = new Date();
@@ -104,13 +112,8 @@ function Management() {
         lastSevenDates.push(dayStr);
       }
       
-      // console.log("---",lastSevenDays);
-
-
       for (var day in lastSevenDays) {
         var test = lastSevenDays[day];
-        // console.log("---", test);
-        // console.log(weight_data[0]['weights'][test])
         if (weight_data[0]['weights'][test] !== undefined) {
           weights.push(Number(weight_data[0]['weights'][test]))
         } else {
@@ -130,14 +133,12 @@ function Management() {
       setWeightData(weight_data);
       setDatesData(lastSevenDates);
       setWeightsData(weights);
-      // console.log("---weight data",weight_data,  weights, dates);
     }).catch((err) => Alert.alert(err.message)); 
   }
 
   useEffect(() => {
     getWeightData();
     navigation.addListener("focus", () => setLoading(!loading));
-    // console.log("---weight data from useEffect", weights, dates);
   }, [navigation, loading]);
 
   const chartConfig = {
@@ -160,7 +161,7 @@ function Management() {
         strokeWidth: 2 // optional
       }
     ],
-    legend: ["Rainy Days"] // optional
+    legend: ["Weight"] // optional
   };
 
 
@@ -172,16 +173,30 @@ function Management() {
                 width={screenWidth}
                 height={220}
                 chartConfig={chartConfig}
+                bezier
                 />
     },
     {
       title: 'Emotion Management',
-      content: <LineChart
-                data={data}
-                width={screenWidth}
-                height={220}
-                chartConfig={chartConfig}
-                />
+      content: <StackedBarChart
+              data={emotion_data}
+              width={screenWidth}
+              height={220}
+              chartConfig={{
+                backgroundColor: '#1cc910',
+                backgroundGradientFrom: '#eff3ff',
+                backgroundGradientTo: '#efefef',
+                decimalPlaces: 2,
+                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                style: {
+                  borderRadius: 16,
+                },
+              }}
+              style={{
+                marginVertical: 8,
+                borderRadius: 16,
+              }}
+    />
     }
   ];
 
@@ -215,7 +230,6 @@ function Management() {
 
   const [weight, setWeight] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
-  // console.log("---weigfht", weight);
   function submitFunction() {
     setModalVisible(false);
     setWeight(weight);
