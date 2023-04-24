@@ -21,6 +21,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { AccordionList } from 'accordion-collapse-react-native';
 import { Dimensions } from "react-native";
 const screenWidth = Dimensions.get("window").width;
+import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
 import {
   LineChart, StackedBarChart
@@ -32,6 +33,23 @@ if(Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+function EmotionCalendar() {
+
+  const [selected, setSelected] = useState({
+    '2023-05-01': {selected: true, marked: true, selectedColor: '#cccccc' },
+    '2023-05-03': {selected: true, marked: true, selectedColor: '#737373' },
+    '2023-05-06': {selected: true, marked: true, selectedColor: '#000000' }
+  });
+
+  return (
+    <View style={{ flex: 1 }}>
+     <Calendar
+      markedDates={selected}
+      enableSwipeMonths={true}    
+      />
+    </View>
+  );
+}
 
 function Management() {
   const navigation = useNavigation();
@@ -69,11 +87,14 @@ function Management() {
   }
 
   const emotion_data = {
-    labels: ["Test1", "Test2"],
-    legend: ["L1", "L2", "L3"],
+    labels: ["04/01", "04/02", "04/03", "04/04", "04/05"],
+    legend: ["Angry", "Sad", "Happy"],
     data: [
       [20, 20, 60],
-      [40, 40, 20]
+      [60, 20, 20],
+      [60, 20, 20],
+      [60, 20, 20],
+      [33, 33, 33]
     ],
     barColors: ["#dfe4ea", "#ced6e0", "#a4b0be"]
   };
@@ -167,16 +188,6 @@ function Management() {
 
   const sections = [
     {
-      title: 'Weight Management',
-      content: <LineChart
-                data={data}
-                width={screenWidth}
-                height={220}
-                chartConfig={chartConfig}
-                bezier
-                />
-    },
-    {
       title: 'Emotion Management',
       content: <StackedBarChart
               data={emotion_data}
@@ -197,6 +208,20 @@ function Management() {
                 borderRadius: 16,
               }}
     />
+    },
+    {
+      title: 'Emotion Calendar',
+      content: <EmotionCalendar />
+    },
+    {
+      title: 'Weight Management',
+      content: <LineChart
+                data={data}
+                width={screenWidth}
+                height={220}
+                chartConfig={chartConfig}
+                bezier
+                />
     }
   ];
 
