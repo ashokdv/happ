@@ -55,6 +55,7 @@ class ActivitiesDoc {
 var activitiesByDateList = null;
 var activitiesDoc = null;
 var docID = null;
+const windowHeight = Dimensions.get('window').height;
 function HomeScreen({ navigation }) {
 
   const activitiesList = collection(db, "activities");
@@ -76,7 +77,7 @@ function HomeScreen({ navigation }) {
   const [pastActivities, setPastActivities] = useState([]);
   const [currentDayActivities, setCurrentDayActivities] = useState([]);
   const [futureActivities, setFutureActivities] = useState([]);
-  const windowHeight = Dimensions.get('window').height;
+  
   const options = [
     { label: 'In progress', value: '0' },
     { label: 'No', value: '1' },
@@ -215,7 +216,7 @@ function HomeScreen({ navigation }) {
       var now = new Date();
       // console.log('--------FUTURE----------');
       // console.log(activity_date > now);
-      if ((now - activity_date) / 3600000 < 20) {
+      if ((now - activity_date) / 3600000 < 0) {
         futureActivities.push(a);
       }
     }
@@ -360,6 +361,7 @@ function HomeScreen({ navigation }) {
       getPastActivities(activitiesByDateList);
       getCurrentDayActivities(activitiesByDateList);
       getFutureActivities(activitiesByDateList);
+      
       // console.log(futureActivities);
       // console.log(new Date());
       // console.log(new Date('04/25/2023'));
@@ -687,7 +689,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 50,
     padding: 10,
-    marginBottom: 40,
+    marginBottom: 100,
+    marginTop: windowHeight/4,
   },
   floatingButton: {
     position: 'absolute',
