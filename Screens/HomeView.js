@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, Modal, Platform, Alert } from 'react-native';
+import { StyleSheet, Text, View, Button, Image, TouchableOpacity, Modal, Platform, Alert, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { auth, signOut } from '../firebase';
@@ -72,8 +72,11 @@ function HomeScreen({ navigation }) {
   const [selectedEmotion, setSelectedEmotion] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [formErrors, setFormErrors] = useState({});
-  const [children, setChildren] = useState(['Hello', 'Hi']);
-
+  const [currentIndex, setCurrentIndex] = useState('');
+  const [pastActivities, setPastActivities] = useState([]);
+  const [currentDayActivities, setCurrentDayActivities] = useState([]);
+  const [futureActivities, setFutureActivities] = useState([]);
+  const windowHeight = Dimensions.get('window').height;
   const options = [
     { label: 'In progress', value: '0' },
     { label: 'No', value: '1' },
@@ -162,22 +165,87 @@ function HomeScreen({ navigation }) {
         var act = new ActivitiesByDate(inputDateValue, tasksList);
         activitiesByDateList.push(act);
       }
-      ///
-      activitiesByDateList = activitiesByDateList.sort(compareByDateDesc);
+      //Sorting activities
+      activitiesByDateList = activitiesByDateList.sort(compareByDateAsc);
+      getPastActivities(activitiesByDateList);
+      getCurrentDayActivities(activitiesByDateList);
+      getFutureActivities(activitiesByDateList);
       var activitiesDoc = new ActivitiesDoc(activitiesByDateList, auth.currentUser.email);
       updateActivities(activitiesDoc);
+      console.log(pastActivities);
       setModalVisible(false);
     }
   }
 
-  const compareByDateDesc = (a, b) => {
-    var a_date = new Date(a.date);
-    var b_date = new Date(b.date); 
-    if(a_date.getTime() < b_date.getTime()){
-      return 1;
+  const getPastActivities = (activitiesByDateList) => {
+    var pastActivities = []
+    for (let i = 0; i < activitiesByDateList.length; i++) {
+      var a = activitiesByDateList[i];
+      var activity_date = new Date(a.date);
+      var now = new Date();
+      // console.log('--------PAST----------');
+      // console.log(activity_date < now);
+      if ((now - activity_date) / 3600000 > 20) {
+        pastActivities.push(a);
+      }
     }
-    else if(a_date.getTime() > b_date.getTime()){
+    setPastActivities(pastActivities);
+  }
+
+  const getCurrentDayActivities = (activitiesByDateList) => {
+    var currentDayActivities = []
+    for (let i = 0; i < activitiesByDateList.length; i++) {
+      var a = activitiesByDateList[i];
+      var activity_date = new Date(a.date);
+      var now = new Date();
+      // console.log('--------CURRENT----------');
+      // console.log(activity_date - now);
+      if ((now - activity_date) / 3600000 < 20 && (now - activity_date) / 3600000 > 0) {
+        currentDayActivities.push(a);
+      }
+    }
+    setCurrentDayActivities(currentDayActivities);
+  }
+
+  const getFutureActivities = (activitiesByDateList) => {
+    var futureActivities = []
+    for (let i = 0; i < activitiesByDateList.length; i++) {
+      var a = activitiesByDateList[i];
+      var activity_date = new Date(a.date);
+      var now = new Date();
+      // console.log('--------FUTURE----------');
+      // console.log(activity_date > now);
+      if ((now - activity_date) / 3600000 < 20) {
+        futureActivities.push(a);
+      }
+    }
+    setFutureActivities(futureActivities);
+  }
+
+  const getEmoji = (emotion) => {
+    if(emotion == '1'){
+     return (<View><Text style={{ fontSize: 25 }}>&#x1F62B;</Text></View>);
+    }
+    else if(emotion == '2'){
+      return (<View><Text style={{ fontSize: 25 }}>&#x1F621;</Text></View>);
+    }
+    else if(emotion == '3'){
+      return (<View><Text style={{ fontSize: 25 }}>&#x1F615;</Text></View>);
+      
+    }
+    else if(emotion == '4'){
+      return (<View><Text style={{ fontSize: 25 }}>&#x1F929;</Text></View>);
+    }
+  }
+
+  const compareByDateAsc = (a, b) => {
+    var a_date = new Date(a.date);
+    var b_date = new Date(b.date);
+    if (a_date.getTime() < b_date.getTime()) {
       return -1;
+    }
+    else if (a_date.getTime() > b_date.getTime()) {
+      return 1;
     }
     else {
       console.log('0');
@@ -288,8 +356,20 @@ function HomeScreen({ navigation }) {
       }
       setActivitiesExist(activitiesByDateList.length > 0 ? true : false);
       //setActivitiesExist(false);
-      activitiesByDateList = activitiesByDateList.sort(compareByDateDesc);
+      activitiesByDateList = activitiesByDateList.sort(compareByDateAsc);
+      getPastActivities(activitiesByDateList);
+      getCurrentDayActivities(activitiesByDateList);
+      getFutureActivities(activitiesByDateList);
+      // console.log(futureActivities);
+      // console.log(new Date());
+      // console.log(new Date('04/25/2023'));
+      // console.log((new Date() - new Date('04/25/2023'))/3600000);
       //console.log(JSON.stringify(activitiesByDateList));
+      // const givenDate = new Date('04/24/2022');
+      // const currentDate = new Date('04/24/2022');
+      // console.log(currentDate-givenDate);
+      // console.log(givenDate);
+      //contentContainerStyle={{ alignItems: 'center', flexGrow:1, backgroundColor: 'white', height: windowHeight }}
     });
   }
 
@@ -299,8 +379,8 @@ function HomeScreen({ navigation }) {
   }, [navigation, loading]);
 
   return (
-
-    <View style={styles.view}>
+    <View style={{flex:1, backgroundColor: 'white'}}>
+    <ScrollView contentContainerStyle={{alignItems: 'center'}} style={{flexGrow:1, padding: 10}}>
       {!activitiesExist ? (
         <View style={styles.backgroundImage}>
           <Image source={require('../assets/icon-tasks.png')} style={{ width: 75, height: 75, opacity: 0.75 }}></Image>
@@ -311,24 +391,49 @@ function HomeScreen({ navigation }) {
 
         /* View if there are existing activities by user */
         <View>
-          <CollapsibleView title="Past" >
-            <View style={{ display: 'flex', flexDirection: 'row' }}>
-            <Text style={{fontWeight:'bold', flex: 2}}>Goal 1</Text>
-            <Text style={{fontWeight:'bold', flex: 4}}>Goal 1</Text>
-            </View>
-            
+          <CollapsibleView title="Past" inner="false">
+          {pastActivities.map((activity) => (
+              <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
+                {activity.tasks.map((task) => (
+                  <View style={{ display: 'flex', flexDirection: 'row' }}>
+                  <Text style={{ fontWeight: 'bold', flex: 1}}></Text>
+                  <Text style={{ fontWeight: 'bold', fontSize: 16, marginRight: 5, textAlign:'left' ,flex: 2 }}>{task.taskname}</Text>
+                  <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
+                  </View>
+                ))}
+              </CollapsibleView>
+            ))}
           </CollapsibleView>
-          <CollapsibleView title="Today">
-            <View>
-            <Text>Content of section 2</Text>
-            <Text>Content of section 3</Text>
-            </View>
+          <CollapsibleView title="Present" inner="false">
+          {currentDayActivities.map((activity) => (
+              <CollapsibleView key={activity.date} title={activity.date} inner="true">
+                {activity.tasks.map((task) => (
+                  <View style={{ display: 'flex', flexDirection: 'row' }}>
+                  <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
+                  <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 2 }}>{task.taskname}</Text>
+                  <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
+                  </View>
+                ))}
+              </CollapsibleView>
+            ))}
           </CollapsibleView>
+          <CollapsibleView title="Future" inner="false">
+          {futureActivities.map((activity) => (
+              <CollapsibleView key={activity.date} title={activity.date} inner="true">
+                {activity.tasks.map((task) => (
+                  <View style={{ display: 'flex', flexDirection: 'row' }}>
+                  <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
+                  <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 2 }}>{task.taskname}</Text>
+                  <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
+                  </View>
+                ))}
+              </CollapsibleView>
+            ))}
+          </CollapsibleView>
+         
         </View>
       }
-      <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
-        <MaterialIcons name="add" size={24} color="white" />
-      </TouchableOpacity>
+      
 
       {/* Modal view on click of (+) */}
       <Modal
@@ -450,16 +555,12 @@ function HomeScreen({ navigation }) {
         </View>
       </Modal>
 
+    </ScrollView>
+    <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
+        <MaterialIcons name="add" size={24} color="white" />
+      </TouchableOpacity>
     </View>
 
-    // <View style={{ backgroundImage: activitiesExist ? require('../assets/icon.png') : '' }}>
-    //   <Text> Home Page </Text>
-    //   <Text> Out 1aaaaaaaaaaaaaaaaaaaaaa</Text>
-    //   <Text> Out 2</Text>
-    //   <Text> Out 3</Text>
-    //   <Text> Out 4</Text>
-
-    // </View>
 
   );
 }
