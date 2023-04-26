@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/core';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import { StyleSheet, Text, View, TextInput, Image, KeyboardAvoidingView, TouchableOpacity, Button} from 'react-native';
 import { auth, createUserWithEmailAndPassword, db, addDoc, collection} from '../firebase';
 import { ScrollView } from 'react-native';
@@ -11,7 +11,6 @@ import { MultipleSelectList, SelectList } from 'react-native-dropdown-select-lis
 
 const RegisterView = () => {
     const navigation = useNavigation();
-    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,7 +23,7 @@ const RegisterView = () => {
     const [weight, setWeight] = useState(0);
 
     const login = () => {
-        navigation.replace("Login")
+        navigation.goBack();
     }
 
     const onRegister = () => {
@@ -53,7 +52,7 @@ const RegisterView = () => {
             const docRef =  addDoc(collection(db, "user"), data);
             docRef
               .then(() => {
-                    alert("Successfully registered")
+                    alert("Successfully registered");
                 })
                 .catch((error) => {
                     alert(error)

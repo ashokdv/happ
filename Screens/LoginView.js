@@ -15,11 +15,11 @@ const LoginView = () => {
     useEffect(() => {
         const logout = onAuthStateChanged(auth, (user) => {
             if(user) {
-                navigation.replace("Happ")
+                navigation.replace("Happ");
             }
         })
 
-        return logout
+        return logout;
     }, [])
 
     const signUp = () => {
@@ -46,12 +46,10 @@ const LoginView = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then(userCredential => {
                 let userCred = userCredential.user;
-                console.log("---logged in", userCred.email)
+                console.log("---logged in", userCred.email);
             })
             .catch(error => alert(error.message));
     }
-
-    const [passwordVisible, setPasswordVisible] = useState(true);
 
     return (
         <KeyboardAvoidingView
@@ -86,13 +84,6 @@ const LoginView = () => {
                     </Text>
                 </TouchableOpacity>
 
-                {/* <TouchableOpacity
-                onPress={signUp}
-                style={[styles.button, styles.buttonOutline]}>
-                    <Text style={styles.buttonOutlineText}>
-                        Register
-                    </Text>
-                </TouchableOpacity> */}
              </View>
              
              <View style={styles.bottomView}>

@@ -2,7 +2,6 @@ import { useNavigation } from '@react-navigation/core';
 import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, TextInput, Image, KeyboardAvoidingView, TouchableOpacity} from 'react-native';
 import { auth, sendPasswordResetEmail, db, addDoc, collection} from '../firebase';
-import { ScrollView } from 'react-native';
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('')
@@ -34,6 +33,7 @@ const ForgotPassword = () => {
                     onChangeText={ value => setEmail(value)  }
                     style={styles.inputText}
                     placeholderTextColor="black"
+                    autoCorrect={false}
                 />
             </View>
             <View style={styles.buttonView}>
