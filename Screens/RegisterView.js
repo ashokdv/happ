@@ -159,24 +159,24 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = "Enter your First name"
+                    placeholder = "      Enter your First name"
                     value={firstName}
                     onChangeText={ value => setFirstName(value)  }
                     // style={styles.inputText}
                     style={{flex: 1}}
-                    // placeholderTextColor="black"
+                    placeholderTextColor="black"
                     />
                 </View>
             </View>
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = "Enter your Last name"
+                    placeholder = "      Enter your Last name"
                     value={lastName}
                     onChangeText={ value => setLastName(value)  }
                     // style={styles.inputText}
                     style={{flex: 1}}
-                    // placeholderTextColor="black"
+                    placeholderTextColor="black"
                     />
                 </View>
             </View>
@@ -184,12 +184,12 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                 <TextInput
-                    placeholder = "Enter your Email"
+                    placeholder = "      Enter your Email"
                     value={email}
                     onChangeText={ value => setEmail(value)  }
                     // style={styles.inputText}
                     style={{flex: 1}}
-                    // placeholderTextColor="black"
+                    placeholderTextColor="black"
                     />
                 </View>
             </View>
@@ -197,12 +197,13 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                 <TextInput
-                placeholder = "Enter your password"
+                placeholder = "      Enter your password"
                 value={password}
                 onChangeText={ value => setPassword(value)  }
                 style={{flex: 1}}
                 // placeholderTextColor="black"
                 secureTextEntry
+                placeholderTextColor='black'
                 />
                 </View>
             </View>
@@ -210,7 +211,7 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = "Reenter the password"
+                    placeholder = "      Reenter the password"
                     value={confirmPassword}
                     onChangeText={ value => setConfirmPassword(value)  }
                     // style={styles.inputText}
@@ -218,6 +219,7 @@ const RegisterView = () => {
                     // placeholderTextColor="black"
                     underlineColorAndroid="transparent"
                     secureTextEntry
+                    placeholderTextColor='black'
                     />
                 </View>
             </View>
@@ -225,9 +227,10 @@ const RegisterView = () => {
                 <View style={styles.sectionStyle}>
                 <TextInput
                     style={{flex: 1}}
-                    placeholder="Date of Birth"
+                    placeholder="      Date of Birth"
                     underlineColorAndroid="transparent"
                     value={pickedDate}
+                    placeholderTextColor='black'
                 />
                 <TouchableOpacity onPress={showDatePicker}>
                 <Image
@@ -248,35 +251,38 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = "Enter Phone Number"
+                    placeholder = "      Enter Phone Number"
                     value={phoneNumber}
                     onChangeText={ value => setPhoneNumber(value)  }
                     style={{flex: 1}}
                     underlineColorAndroid="transparent"
                     keyboardType='numeric'
+                    placeholderTextColor='black'
                     />
                 </View>
             </View>
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = "Weight in Lbs"
+                    placeholder = "      Weight in Lbs"
                     value={weight}
                     onChangeText={ value => setWeight(value)  }
                     style={{flex: 1}}
                     underlineColorAndroid="transparent"
                     keyboardType='numeric'
+                    placeholderTextColor='black'
                     />
                 </View>
             </View>
             <View >
             <View style={styles.inputContainerDropDown}>
                 <SelectList 
-                    setSelected={(val) => setEmotion(val)} 
+                    setSelected={(val) => setEmotion(val)}
                     data={emotions} 
                     save="value"
                     placeholder='Select Emotion'
-                    boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
+                    searchPlaceholder='Search Emotion'
+                    boxStyles={{marginTop:10,width: '100%', backgroundColor: '#fff'}}
                 />
             </View>
             </View>
@@ -289,12 +295,14 @@ const RegisterView = () => {
                 label="hobbies"
                 boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
                 placeholder='Select Hobbies'
+                searchPlaceholder='Search Hobbies'
             />
             </View>
             <View style={styles.inputContainerDropDown}>
                 <SelectList 
                     setSelected={(val) => setDegree(val)} 
                     data={degrees} 
+                    searchPlaceholder='Select Degree'
                     save="value"
                     boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
                     placeholder='Select Degree'
@@ -306,6 +314,7 @@ const RegisterView = () => {
                     data={courses} 
                     save="value"
                     placeholder='Select Course'
+                    searchPlaceholder='Search Courses'
                     boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
                 />
             </View>
@@ -317,6 +326,7 @@ const RegisterView = () => {
                 label="genre"
                 boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
                 placeholder='Select Genres'
+                searchPlaceholder='Search Genres'
             />
             </View>
             <View style={styles.buttonView}>
@@ -369,7 +379,6 @@ const styles = StyleSheet.create({
         borderRadius:'20%',
         flex:1,
         marginLeft: 10,
-        height: 60
     },
     inputText: {
         backgroundColor: 'white',

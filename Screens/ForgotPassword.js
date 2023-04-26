@@ -26,7 +26,7 @@ const ForgotPassword = () => {
         >
             <View style={styles.inputContainer}>
                 <Text style={{alignContent: 'center', textAlign: 'center', paddingBottom:20}}>
-                    ForgotPassword?
+                    Forgot Password?
                 </Text>
                 <TextInput
                     placeholder = "Email"

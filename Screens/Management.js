@@ -283,6 +283,7 @@ function Management() {
         })
       
       }
+      // console.log("--weufht", weight_data);
       setID(weight_data[0].id);
       let weights = []
       const currentDate = new Date();
@@ -426,10 +427,11 @@ function Management() {
 
   const [weight, setWeight] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
-  function submitFunction() {
+  async function submitFunction() {
     setModalVisible(false);
     setWeight(weight);
-    updateUserWeight();
+    await updateUserWeight();
+    await getWeightData();
   }
 
   return (
