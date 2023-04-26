@@ -51,13 +51,14 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderBottomWidth: 1,
         borderColor: '#ccc',
+        backgroundColor: '#fff',
     },
     title: {
         fontSize: 18,
         fontWeight: 'bold',
     },
     card: {
-        backgroundColor: '#f9f9f9',
+        backgroundColor: 'white',
         marginVertical: 5,
         padding: 10,
         borderRadius: 5,
