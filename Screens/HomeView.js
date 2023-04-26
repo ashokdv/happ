@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, Image, TouchableOpacity, Modal, Platform, Alert, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/core';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { auth, signOut } from '../firebase';
-import { Directions, ScrollView, TextInput } from 'react-native-gesture-handler';
+import { Directions, GestureHandlerRootView, ScrollView, TextInput } from 'react-native-gesture-handler';
 import { db, addDoc, collection, query, getDocs, } from '../firebase';
 import { doc, setDoc, getDoc, where, updateDoc, orderBy } from "firebase/firestore";
 import { toFirestore } from "firebase/firestore/lite";
@@ -22,6 +22,9 @@ import { AntDesign } from '@expo/vector-icons';
 import CollapsibleView from './CollapsibleView';
 import CustomCheckbox from './CustomCheckbox';
 import { Title } from 'react-native-paper';
+import { LongPressGestureHandler } from 'react-native-gesture-handler';
+import Popup from './Popup';
+import { ImageBackground } from 'react-native';
 
 // import { validate } from 'react-native-web/dist/cjs/exports/StyleSheet/validate';
 function ManagementView({ navigation }) {
@@ -66,7 +69,6 @@ function HomeScreen({ navigation }) {
 
   const [activitiesExist, setActivitiesExist] = useState(false);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [formValue, setFormValue] = useState('');
   const [inputDateValue, setInputDateValue] = useState('');
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [date, setDate] = useState(new Date());
@@ -76,10 +78,17 @@ function HomeScreen({ navigation }) {
   const [selectedEmotion, setSelectedEmotion] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
   const [formErrors, setFormErrors] = useState({});
-  const [currentIndex, setCurrentIndex] = useState('');
   const [pastActivities, setPastActivities] = useState([]);
   const [currentDayActivities, setCurrentDayActivities] = useState([]);
   const [futureActivities, setFutureActivities] = useState([]);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const [popupSelectedValue, setPopupSelectedValue] = useState('');
+  const [popupDate, setPopupDate] = useState('');
+  const [popupTaskName, setPopupTaskName] = useState('');
+
+  // var popupDate = '';
+  // var popupTaskName = '';
+  // var popupSelectedValue = '';
 
   const options = [
     { label: 'In progress', value: '0' },
@@ -227,7 +236,10 @@ function HomeScreen({ navigation }) {
   }
 
   const getEmoji = (emotion) => {
-    if (emotion == '1') {
+    if (emotion == '') {
+      return (<View><Text style={{ fontSize: 12, marginTop: 5, marginRight: 5, textAlign: 'left', color: 'black', textDecorationLine: 'underline' }}>Click here to add your feeling</Text></View>);
+    }
+    else if (emotion == '1') {
       return (<View><Text style={{ fontSize: 25 }}>&#x1F62B;</Text></View>);
     }
     else if (emotion == '2') {
@@ -252,7 +264,6 @@ function HomeScreen({ navigation }) {
       return 1;
     }
     else {
-      console.log('0');
       return 0;
     }
   };
@@ -276,7 +287,6 @@ function HomeScreen({ navigation }) {
     if (!inputDateValue) {
       errors.inputDateValue = "Date is required";
       isValid = false;
-      console.log(errors.inputDateValue);
     }
 
     if (!title) {
@@ -338,37 +348,85 @@ function HomeScreen({ navigation }) {
   }
 
   const testFunction = (value, date, taskname) => {
-    
-    console.log(value);
-    console.log(date);
-    console.log(taskname);
-    
-    console.log(activitiesExist);
+
+
+    //console.log(activitiesExist);
     for (let i = 0; i < activitiesByDateList.length; i++) {
       var act = activitiesByDateList[i];
       if (act.date == date) {
         var tasksList = act.tasks;
-        
+
         for (let j = 0; j < tasksList.length; j++) {
           var task = tasksList[j];
-          if(task.taskname == taskname){
+          if (task.taskname == taskname) {
             task.completed = value;
             tasksList[j] = task;
-            console.log('VALUE');
-            console.log(value);
             break;
           }
         }
       }
     }
-    console.log(JSON.stringify(activitiesByDateList));
+    //console.log(JSON.stringify(activitiesByDateList));
     var activitiesDoc = new ActivitiesDoc(activitiesByDateList, auth.currentUser.email);
     updateStatus(activitiesDoc);
-    // activitiesByDateList = activitiesByDateList.sort(compareByDateAsc);
-    //   getPastActivities(activitiesByDateList);
-    //   getCurrentDayActivities(activitiesByDateList);
-    //   getFutureActivities(activitiesByDateList);
   };
+
+  const handleLongPress = useCallback((task, d) => {
+    // Show popup
+    setPopupTaskName(task.taskname);
+    setPopupDate(d);
+    setPopupSelectedValue(task.emotion);
+    setIsPopupVisible(true);
+  }, []);
+
+
+  const handleOptionPress = (value, date, taskname) => {
+
+    for (let i = 0; i < activitiesByDateList.length; i++) {
+      var act = activitiesByDateList[i];
+      if (act.date == date) {
+        var tasksList = act.tasks;
+
+        for (let j = 0; j < tasksList.length; j++) {
+          var task = tasksList[j];
+          if (task.taskname == taskname) {
+            task.emotion = value;
+            tasksList[j] = task;
+            break;
+          }
+        }
+      }
+    }
+    var activitiesDoc = new ActivitiesDoc(activitiesByDateList, auth.currentUser.email);
+    updateStatus(activitiesDoc);
+
+    setIsPopupVisible(false);
+    setPopupTaskName('');
+    setPopupDate('');
+    setPopupSelectedValue('');
+  };
+
+  // const handleIconPress = (iconNumber) => {
+  //   switch(iconNumber) {
+  //     case 1:
+  //       // Do something when Icon1 is clicked
+  //       break;
+  //     case 2:
+  //       // Do something when Icon2 is clicked
+  //       break;
+  //     case 3:
+  //       // Do something when Icon3 is clicked
+  //       break;
+  //     case 4:
+  //       // Do something when Icon4 is clicked
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  //   setShowPopup(false);
+  // }
+
+
   const getData = async () => {
     await getDocs(
       query(activitiesList, where("email", "==", auth.currentUser.email))
@@ -427,191 +485,202 @@ function HomeScreen({ navigation }) {
   }, [navigation, loading]);
 
   return (
-    <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <ScrollView contentContainerStyle={{ alignItems: 'center' }} style={{ flexGrow: 1, padding: 10 }}>
-        {!activitiesExist ? (
-          <View style={styles.backgroundImage}>
-            <Image source={require('../assets/icon-tasks.png')} style={{ width: 75, height: 75, opacity: 0.75 }}></Image>
-            <Text style={styles.textForNoActivities}>There are no activities logged yet.</Text>
-            <Text style={styles.textForNoActivities}>Please click on (+) to add an activity/goal</Text>
-          </View>
-        ) :
-
-          /* View if there are existing activities by user */
-          <View>
-            <CollapsibleView title="Past" inner="false">
-              {pastActivities.map((activity) => (
-                <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
-                  {activity.tasks.map((task) => (
-                    <View style={{ display: 'flex', flexDirection: 'row' }}>
-                      <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
-                      <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                      <Text style={{ fontWeight: 'bold', fontSize: 16, marginRight: 5, textAlign: 'left', flex: 2 }}>{task.taskname}</Text>
-                      <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
-                    </View>
-                  ))}
-                </CollapsibleView>
-              ))}
-            </CollapsibleView>
-            <CollapsibleView title="Present" inner="false">
-              {currentDayActivities.map((activity) => (
-                <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
-                  {activity.tasks.map((task) => (
-                    <View style={{ display: 'flex', flexDirection: 'row' }}>
-                      <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
-                      <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                      <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 2 }}>{task.taskname}</Text>
-                      <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
-                    </View>
-                  ))}
-                </CollapsibleView>
-              ))}
-              {currentDayActivities.length == 0 ? (<View styles={styles.view}><Title style={{textAlign: 'center'}}>No records</Title></View>) : <View></View> }
-            </CollapsibleView>
-            <CollapsibleView title="Future" inner="false">
-              {futureActivities.map((activity) => (
-                <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
-                  {activity.tasks.map((task) => (
-                    <View style={{ display: 'flex', flexDirection: 'row' }}>
-                      <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
-                      <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                      <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 2 }}>{task.taskname}</Text>
-                      <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
-                    </View>
-                  ))}
-                </CollapsibleView>
-              ))}
-            </CollapsibleView>
-
-          </View>
-        }
-
-
-        {/* Modal view on click of (+) */}
-        <Modal
-          visible={isModalVisible}
-          animationType="slide"
-          onRequestClose={handleClose}
-          transparent={true}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modal}>
-              {/* Date */}
-              {formErrors.inputDateValue !== "" && <Text style={{ color: "red" }}>{formErrors.inputDateValue}</Text>}
-              <View style={{ display: 'flex', flexDirection: 'row' }}>
-                <TextInput
-                  style={styles.dateText}
-                  placeholder='Select the Date'
-                  editable={false}
-                  onChangeText={handleInputChange}
-                  value={inputDateValue}
-                />
-                <TouchableOpacity onPress={showPicker}>
-                  <Image
-                    source={require('../images/calendar.png')}
-                    style={styles.imageDate}
-                  />
-                </TouchableOpacity>
-              </View>
-
-
-              {showDatePicker && (
-                <DateTimePicker
-                  value={date}
-                  mode="date"
-                  is24Hour={true}
-                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                  onChange={handleDateChange}
-                />
-              )}
-              {/* Title */}
-              {formErrors.title !== "" && <Text style={{ color: "red" }}>{formErrors.title}</Text>}
-              <TextInput
-                style={styles.input}
-                placeholder='Enter title of the goal'
-                onChangeText={handleTitleChange}
-              />
-              {/* Description */}
-              {formErrors.desc !== "" && <Text style={{ color: "red" }}>{formErrors.desc}</Text>}
-              <TextInput
-                style={styles.inputMultiLine}
-                multiline={true}
-                numberOfLines={4}
-                textAlignVertical='top'
-                placeholder='Describe the goal'
-                onChangeText={handleDescChange}
-              />
-
-              {/* Emotion */}
-              <Text style={{ fontSize: 16 }}>How do you feel about this?</Text>
-              <View style={{ marginTop: 10, marginBottom: 20, display: 'flex', flexDirection: 'row' }}>
-                <TouchableOpacity onPress={() => handleEmotionSelect('1')}>
-                  <Text style={{ fontSize: selectedEmotion === '1' ? 40 : 30 }}>
-                    &#x1F62B; {/* Sad */}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleEmotionSelect('2')}>
-                  <Text style={{ fontSize: selectedEmotion === '2' ? 40 : 30 }}>
-                    &#x1F621; {/* Angry */}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleEmotionSelect('3')}>
-                  <Text style={{ fontSize: selectedEmotion === '3' ? 40 : 30 }}>
-                    &#x1F615; {/* Confused */}
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => handleEmotionSelect('4')}>
-                  <Text style={{ fontSize: selectedEmotion === '4' ? 40 : 30 }}>
-                    &#x1F929; {/* Happy */}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Status */}
-              {formErrors.selectedStatus !== "" && <Text style={{ color: "red" }}>{formErrors.selectedStatus}</Text>}
-              <Text style={{ fontSize: 18, marginBottom: 20 }}>Is it completed?</Text>
-              {options.map((option) => (
-                <TouchableOpacity
-                  key={option.value}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    paddingVertical: 10,
-                    paddingHorizontal: 20,
-                    backgroundColor: option.value === selectedStatus ? '#EFEFEF' : '#FFFFFF',
-                    borderRadius: 5,
-                    marginBottom: 10,
-                  }}
-                  onPress={() => handleStatusSelect(option.value)}
-                >
-                  <AntDesign name={option.value === selectedStatus ? 'checkcircle' : 'checkcircleo'} size={24} color="#007AFF" style={{ marginRight: 10 }} />
-                  <Text>{option.label}</Text>
-                </TouchableOpacity>
-              ))}
-
-
-
-              <TouchableOpacity
-                style={styles.submitButton}
-                onPress={handleSubmit}
-              >
-                <Text style={styles.buttonText}>Submit</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={handleClose}
-              >
-                <Text style={styles.buttonText}>Close</Text>
-              </TouchableOpacity>
+    <ImageBackground source={require('../assets/bg1.jpg')} style={styles.bgImage}>
+      <View style={{ flex: 1 }}>
+        <ScrollView contentContainerStyle={{ alignItems: 'center' }} style={{ flexGrow: 1, padding: 10 }}>
+          {!activitiesExist ? (
+            <View style={styles.backgroundImage}>
+              <Image source={require('../assets/icon-tasks.png')} style={{ width: 75, height: 75, opacity: 0.75 }}></Image>
+              <Text style={styles.textForNoActivities}>There are no activities logged yet.</Text>
+              <Text style={styles.textForNoActivities}>Please click on (+) to add an activity/goal</Text>
             </View>
-          </View>
-        </Modal>
+          ) :
 
-      </ScrollView>
-      <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
-        <MaterialIcons name="add" size={24} color="white" />
-      </TouchableOpacity>
-    </View>
+            /* View if there are existing activities by user */
+            <View>
+              <CollapsibleView title="Past" inner="false">
+                {pastActivities.map((activity) => (
+                  <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
+                    {activity.tasks.map((task) => (
+                      <View style={{ display: 'flex', flexDirection: 'row' }}>
+                        <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
+                        <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
+                        <Text style={{ fontWeight: 'bold', fontSize: 16, marginRight: 5, textAlign: 'left', flex: 3 }}>{task.taskname}</Text>
+                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={() => handleLongPress(task, activity.date)}>
+                          <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
+                        </LongPressGestureHandler>
+                      </View>
+                    ))}
+                  </CollapsibleView>
+                ))}
+                {pastActivities.length == 0 ? (<View styles={{ marginBottom: 0 }}><Title style={{ textAlign: 'center', color: 'black', fontStyle: 'italic', fontSize: 18 }}>No records</Title></View>) : <View></View>}
+              </CollapsibleView>
+              <CollapsibleView title="Present" inner="false">
+                {currentDayActivities.map((activity) => (
+                  <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
+                    {activity.tasks.map((task) => (
+                      <View style={{ display: 'flex', flexDirection: 'row' }}>
+                        <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
+                        <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
+                        <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
+                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={() => handleLongPress(task, activity.date)}>
+                          <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
+                        </LongPressGestureHandler>
+                      </View>
+                    ))}
+                  </CollapsibleView>
+                ))}
+                {currentDayActivities.length == 0 ? (<View styles={{ marginBottom: 0 }}><Title style={{ textAlign: 'center', color: 'black', fontStyle: 'italic', fontSize: 18 }}>No records</Title></View>) : <View></View>}
+              </CollapsibleView>
+              <CollapsibleView title="Future" inner="false">
+                {futureActivities.map((activity) => (
+                  <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
+                    {activity.tasks.map((task) => (
+                      <View style={{ display: 'flex', flexDirection: 'row' }}>
+                        <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
+                        <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
+                        <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
+                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={() => handleLongPress(task, activity.date)}>
+                          <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
+                        </LongPressGestureHandler>
+                      </View>
+                    ))}
+                  </CollapsibleView>
+                ))}
+                {futureActivities.length == 0 ? (<View styles={{ marginBottom: 0 }}><Title style={{ textAlign: 'center', color: 'black', fontStyle: 'italic', fontSize: 18 }}>No records</Title></View>) : <View></View>}
+              </CollapsibleView>
+
+            </View>
+          }
+
+          <Popup key={popupTaskName} isVisible={isPopupVisible} onClose={() => setIsPopupVisible(false)} onOptionPress={handleOptionPress} selectedEmotion={popupSelectedValue} date={popupDate} taskname={popupTaskName} />
+
+          {/* Modal view on click of (+) */}
+          <Modal
+            visible={isModalVisible}
+            animationType="slide"
+            onRequestClose={handleClose}
+            transparent={true}
+          >
+            <View style={styles.modalContainer}>
+              <View style={styles.modal}>
+                {/* Date */}
+                {formErrors.inputDateValue !== "" && <Text style={{ color: "red" }}>{formErrors.inputDateValue}</Text>}
+                <View style={{ display: 'flex', flexDirection: 'row' }}>
+                  <TextInput
+                    style={styles.dateText}
+                    placeholder='Select the Date'
+                    editable={false}
+                    onChangeText={handleInputChange}
+                    value={inputDateValue}
+                  />
+                  <TouchableOpacity onPress={showPicker}>
+                    <Image
+                      source={require('../images/calendar.png')}
+                      style={styles.imageDate}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+
+                {showDatePicker && (
+                  <DateTimePicker
+                    value={date}
+                    mode="date"
+                    is24Hour={true}
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={handleDateChange}
+                  />
+                )}
+                {/* Title */}
+                {formErrors.title !== "" && <Text style={{ color: "red" }}>{formErrors.title}</Text>}
+                <TextInput
+                  style={styles.input}
+                  placeholder='Enter title of the goal'
+                  onChangeText={handleTitleChange}
+                />
+                {/* Description */}
+                {formErrors.desc !== "" && <Text style={{ color: "red" }}>{formErrors.desc}</Text>}
+                <TextInput
+                  style={styles.inputMultiLine}
+                  multiline={true}
+                  numberOfLines={4}
+                  textAlignVertical='top'
+                  placeholder='Describe the goal'
+                  onChangeText={handleDescChange}
+                />
+
+                {/* Emotion */}
+                <Text style={{ fontSize: 16 }}>How do you feel about this?</Text>
+                <View style={{ marginTop: 10, marginBottom: 20, display: 'flex', flexDirection: 'row' }}>
+                  <TouchableOpacity onPress={() => handleEmotionSelect('1')}>
+                    <Text style={{ fontSize: selectedEmotion === '1' ? 40 : 30 }}>
+                      &#x1F62B; {/* Sad */}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleEmotionSelect('2')}>
+                    <Text style={{ fontSize: selectedEmotion === '2' ? 40 : 30 }}>
+                      &#x1F621; {/* Angry */}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleEmotionSelect('3')}>
+                    <Text style={{ fontSize: selectedEmotion === '3' ? 40 : 30 }}>
+                      &#x1F615; {/* Confused */}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleEmotionSelect('4')}>
+                    <Text style={{ fontSize: selectedEmotion === '4' ? 40 : 30 }}>
+                      &#x1F929; {/* Happy */}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* Status */}
+                {formErrors.selectedStatus !== "" && <Text style={{ color: "red" }}>{formErrors.selectedStatus}</Text>}
+                <Text style={{ fontSize: 18, marginBottom: 20 }}>Is it completed?</Text>
+                {options.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingVertical: 10,
+                      paddingHorizontal: 20,
+                      backgroundColor: option.value === selectedStatus ? '#EFEFEF' : '#FFFFFF',
+                      borderRadius: 5,
+                      marginBottom: 10,
+                    }}
+                    onPress={() => handleStatusSelect(option.value)}
+                  >
+                    <AntDesign name={option.value === selectedStatus ? 'checkcircle' : 'checkcircleo'} size={24} color="#007AFF" style={{ marginRight: 10 }} />
+                    <Text>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+
+
+
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={handleSubmit}
+                >
+                  <Text style={styles.buttonText}>Submit</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={handleClose}
+                >
+                  <Text style={styles.buttonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+
+        </ScrollView>
+        <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
+          <MaterialIcons name="add" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
+    </ImageBackground>
 
 
   );
@@ -649,12 +718,14 @@ function CustomDrawerContent(props) {
 
 const HomeView = () => {
   return (
-    <Drawer.Navigator useLegacyImplementation initialRouteName="Home"
-      drawerContent={(props) => <CustomDrawerContent {...props} />} >
-      <Drawer.Screen name="Home" component={HomeScreen} />
-      <Drawer.Screen name="Profile" component={ProfileScreenView} />
-      <Drawer.Screen name="Management" component={ManagementView} />
-    </Drawer.Navigator>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Drawer.Navigator useLegacyImplementation initialRouteName="Home"
+        drawerContent={(props) => <CustomDrawerContent {...props} />} >
+        <Drawer.Screen name="Home" component={HomeScreen} />
+        <Drawer.Screen name="Profile" component={ProfileScreenView} />
+        <Drawer.Screen name="Management" component={ManagementView} />
+      </Drawer.Navigator>
+    </GestureHandlerRootView>
   )
 }
 
@@ -664,7 +735,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     backgroundColor: 'white',
-    backgroundImage: 'linear-gradient(to bottom right, #c4e0e5, #8fc9d4)',
   },
   textForNoActivities: {
     paddingHorizontal: 30,
@@ -747,7 +817,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 16,
     right: 16,
-    backgroundColor: '#87C9FC',
+    backgroundColor: '#AF7AC5',
     borderRadius: 32,
     width: 64,
     height: 64,
@@ -808,7 +878,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   submitButton: {
-    backgroundColor: 'blue',
+    backgroundColor: '#AF7AC5',
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
@@ -818,4 +888,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
   },
+  bgImage: {
+    flex: 1,
+    resizeMode: 'cover',
+  }
 });

@@ -15,21 +15,21 @@ const CollapsibleView = ({ title, children, inner }) => {
     const [contentHeight, setContentHeight] = useState(0);
     const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
-    const containerHeight = isCollapsed ? 50 : contentHeight + 70;
+    const containerHeight = isCollapsed ? 50 : contentHeight + 60;
 
     const windowHeight = Dimensions.get('window').height;
     const windowWidth = Dimensions.get('window').width;
 
     return (
         <Animated.View style={inner == 'true' ? [styles.container, { height: containerHeight, width: windowWidth - 60 }]
-            :    [styles.container, { height: containerHeight, width: windowWidth - 20 }]}>
+            : [styles.container, { height: containerHeight, width: windowWidth - 20 }]}>
             <TouchableOpacity style={styles.header} onPress={toggleCollapse}>
-                <Text style={styles.title}>{title}</Text>
-                <Ionicons name={isCollapsed ? 'chevron-down' : 'chevron-up'} size={24} color="black" />
+                <Text style={inner == 'true' ? styles.titleInn : styles.title}>{title}</Text>
+                <Ionicons name={isCollapsed ? 'chevron-down' : 'chevron-up'} size={24} color="black" style={{ marginRight: 5 }} />
             </TouchableOpacity>
             <View onLayout={(event) => setContentHeight(event.nativeEvent.layout.height)}>
                 {React.Children.map(children, (child) => (
-                    <View style={styles.card}>{child}</View>
+                    <View style={inner == 'true' ? styles.cardInn : styles.cardExt}>{child}</View>
                 ))}
             </View>
         </Animated.View>
@@ -38,7 +38,7 @@ const CollapsibleView = ({ title, children, inner }) => {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: '#fff',
+        marginTop: 5,
         marginBottom: 10,
         borderRadius: 10,
         overflow: 'hidden',
@@ -49,20 +49,42 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingVertical: 10,
-        borderBottomWidth: 1,
-        borderColor: '#ccc',
-        backgroundColor: '#fff',
+        borderBottomWidth: 2,
+        borderColor: 'black',
+        borderRadius: 5,
+        backgroundColor: 'transparent',
+    
     },
     title: {
+        marginLeft: '4%',
         fontSize: 18,
         fontWeight: 'bold',
     },
-    card: {
-        backgroundColor: 'white',
+    titleInn: {
+        marginLeft: '4%',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    cardExt: {
         marginVertical: 5,
         padding: 10,
-        borderRadius: 5,
     },
+    cardInn: {
+        //backgroundColor: 'white',
+        padding: 10,
+        borderRadius: 5,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        backgroundColor: 'transparent',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'transparent',
+        overflow: 'hidden',
+        margin: 5,
+        shadowColor: '#000',
+        shadowOpacity: 0.25,
+    }
 });
 
 export default CollapsibleView;
