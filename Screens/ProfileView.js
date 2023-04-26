@@ -54,7 +54,7 @@ function ProfileScreen() {
         phoneNumber: userData.phoneNumber,
         weight: userData.weight
       }).then(() => {
-        console.log('User Updated!');
+        // console.log('User Updated!');
         Alert.alert(
           'Profile Updated!',
           'Your profile has been updated successfully.'
@@ -150,6 +150,7 @@ function ProfileScreen() {
             value={userData ? userData.weight : ''}
             onChangeText={(txt) => setUserData({...userData, weight: txt})}
             autoCorrect={false}
+            keyboardType='numeric'
           />    
         </View>
         {/* <View style={styles.inputContainer}>

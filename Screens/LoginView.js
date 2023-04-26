@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, TextInput, Image, KeyboardAvoidingView, Touchab
 import { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged} from '../firebase';
 // https://firebase.google.com/docs/auth/web/start?authuser=0&hl=en#web-version-9_2
 // import { RegisterView } from './RegisterView.js';
+import { TextInput as TextInputPaper } from 'react-native-paper';
 
 const LoginView = () => {
 
@@ -49,6 +50,8 @@ const LoginView = () => {
             })
             .catch(error => alert(error.message));
     }
+
+    const [passwordVisible, setPasswordVisible] = useState(true);
 
     return (
         <KeyboardAvoidingView

@@ -155,7 +155,7 @@ const RegisterView = () => {
             behavior="padding"
         >
          <Image source = {require('../images/happiness.png')} style={styles.image} />
-          <View style={styles.inputContainer}>
+          <View style={styles.inputContainerMain}>
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
@@ -202,6 +202,7 @@ const RegisterView = () => {
                 onChangeText={ value => setPassword(value)  }
                 style={{flex: 1}}
                 // placeholderTextColor="black"
+                secureTextEntry
                 />
                 </View>
             </View>
@@ -216,6 +217,7 @@ const RegisterView = () => {
                     style={{flex: 1}}
                     // placeholderTextColor="black"
                     underlineColorAndroid="transparent"
+                    secureTextEntry
                     />
                 </View>
             </View>
@@ -246,25 +248,28 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = " Phone Number"
+                    placeholder = "Enter Phone Number"
                     value={phoneNumber}
                     onChangeText={ value => setPhoneNumber(value)  }
                     style={{flex: 1}}
                     underlineColorAndroid="transparent"
+                    keyboardType='numeric'
                     />
                 </View>
             </View>
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = " Weight in Lbs"
+                    placeholder = "Weight in Lbs"
                     value={weight}
                     onChangeText={ value => setWeight(value)  }
                     style={{flex: 1}}
                     underlineColorAndroid="transparent"
+                    keyboardType='numeric'
                     />
                 </View>
             </View>
+            <View >
             <View style={styles.inputContainerDropDown}>
                 <SelectList 
                     setSelected={(val) => setEmotion(val)} 
@@ -274,6 +279,8 @@ const RegisterView = () => {
                     boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
                 />
             </View>
+            </View>
+            
             <View style={styles.inputContainerDropDown}>
                 <MultipleSelectList 
                 setSelected={(val) => setSelected(val)} 
@@ -353,10 +360,16 @@ const styles = StyleSheet.create({
         width: '80%',
         borderRadius:'20%'
     },
+    inputContainerMain: {
+        width: '80%',
+        borderRadius:'20%'
+    },
     inputContainerDropDown: {
-        width: '100%',
+        width: '94%',
         borderRadius:'20%',
         flex:1,
+        marginLeft: 10,
+        height: 60
     },
     inputText: {
         backgroundColor: 'white',
@@ -443,6 +456,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderWidth: 0.5,
         borderColor: '#000',
+        height: 40,
+        borderRadius: 5,
+        margin: 10,
+    },
+    sectionStyleOne: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
         height: 40,
         borderRadius: 5,
         margin: 10,

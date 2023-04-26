@@ -11,7 +11,9 @@ import Management from './Management.js';
 import { MultipleSelectList, SelectList } from 'react-native-dropdown-select-list'
 import Example from './DatePicker.js';
 import ProfileScreen from './ProfileView.js';
-
+import { addDays, eachDayOfInterval, eachWeekOfInterval, format, subDays } from 'date-fns';
+import PagerView from 'react-native-pager-view';
+import HomeScreenView from './HomeScreen.js';
 function ManagementView({navigation}) {
   return (
     <Management />
@@ -133,5 +135,5 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignContent: 'center',
       color: 'black'
-  },
+  }
 });
