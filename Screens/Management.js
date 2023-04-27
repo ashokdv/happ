@@ -15,6 +15,8 @@ import {
   TextInput,
   Modal
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+
 import { useNavigation } from '@react-navigation/core';
 import { auth, signOut } from '../firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -559,15 +561,9 @@ function Management() {
           </View>
         </View>
       </Modal>
-      <TouchableOpacity
-        activeOpacity={0.7}
-        style={styles.touchableOpacityStyle}
-        onPress={() => setModalVisible(true)}>
-        <Image
-          source={require('../images/plus.png')}
-          style={styles.floatingButtonStyle}
-        />
-      </TouchableOpacity>
+      <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
+          <MaterialIcons name="add" size={24} color="white" />
+        </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -598,8 +594,8 @@ const styles = StyleSheet.create({
   },
   touchableOpacityStyle: {
     position: 'absolute',
-    width: 60,
-    height: 60,
+    width: 80,
+    height: 80,
     alignItems: 'center',
     justifyContent: 'center',
     // left: 50,
@@ -720,6 +716,17 @@ const styles = StyleSheet.create({
   },
   pieChart: {
     height: 200,
+  },
+  floatingButton: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    backgroundColor: '#AF7AC5',
+    borderRadius: 32,
+    width: 64,
+    height: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 
