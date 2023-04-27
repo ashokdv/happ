@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Button, Image, TouchableOpacity, Modal, Platfor
 import { useNavigation } from '@react-navigation/core';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { auth, signOut } from '../firebase';
-import { Directions, GestureHandlerRootView, ScrollView, TextInput } from 'react-native-gesture-handler';
+import { Directions, GestureHandlerRootView, ScrollView, State, TextInput } from 'react-native-gesture-handler';
 import { db, addDoc, collection, query, getDocs, } from '../firebase';
 import { doc, setDoc, getDoc, where, updateDoc, orderBy } from "firebase/firestore";
 import { toFirestore } from "firebase/firestore/lite";
@@ -237,7 +237,7 @@ function HomeScreen({ navigation }) {
 
   const getEmoji = (emotion) => {
     if (emotion == '') {
-      return (<View><Text style={{ fontSize: 12, marginTop: 5, marginRight: 5, textAlign: 'left', color: 'black', textDecorationLine: 'underline' }}>Click here to add your feeling</Text></View>);
+      return (<View><Text style={{ fontSize: 12, marginTop: 5, marginRight: 5, textAlign: 'left', color: 'black', textDecorationLine: 'underline' }}>Long press here to add your feeling</Text></View>);
     }
     else if (emotion == '1') {
       return (<View><Text style={{ fontSize: 25 }}>&#x1F62B;</Text></View>);
@@ -371,12 +371,15 @@ function HomeScreen({ navigation }) {
     updateStatus(activitiesDoc);
   };
 
-  const handleLongPress = useCallback((task, d) => {
-    // Show popup
-    setPopupTaskName(task.taskname);
-    setPopupDate(d);
-    setPopupSelectedValue(task.emotion);
-    setIsPopupVisible(true);
+  const handleLongPress = useCallback((event, task, d) => {
+    const { nativeEvent } = event;
+    if (nativeEvent.state === State.ACTIVE) {
+      // Show popup
+      setPopupTaskName(task.taskname);
+      setPopupDate(d);
+      setPopupSelectedValue(task.emotion);
+      setIsPopupVisible(true);
+    }
   }, []);
 
 
@@ -406,25 +409,6 @@ function HomeScreen({ navigation }) {
     setPopupSelectedValue('');
   };
 
-  // const handleIconPress = (iconNumber) => {
-  //   switch(iconNumber) {
-  //     case 1:
-  //       // Do something when Icon1 is clicked
-  //       break;
-  //     case 2:
-  //       // Do something when Icon2 is clicked
-  //       break;
-  //     case 3:
-  //       // Do something when Icon3 is clicked
-  //       break;
-  //     case 4:
-  //       // Do something when Icon4 is clicked
-  //       break;
-  //     default:
-  //       break;
-  //   }
-  //   setShowPopup(false);
-  // }
 
 
   const getData = async () => {
@@ -506,7 +490,7 @@ function HomeScreen({ navigation }) {
                         <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
                         <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
                         <Text style={{ fontWeight: 'bold', fontSize: 16, marginRight: 5, textAlign: 'left', flex: 3 }}>{task.taskname}</Text>
-                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={() => handleLongPress(task, activity.date)}>
+                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
                           <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
                         </LongPressGestureHandler>
                       </View>
@@ -523,7 +507,7 @@ function HomeScreen({ navigation }) {
                         <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
                         <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
                         <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
-                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={() => handleLongPress(task, activity.date)}>
+                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
                           <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
                         </LongPressGestureHandler>
                       </View>
@@ -540,7 +524,7 @@ function HomeScreen({ navigation }) {
                         <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
                         <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
                         <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
-                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={() => handleLongPress(task, activity.date)}>
+                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
                           <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
                         </LongPressGestureHandler>
                       </View>

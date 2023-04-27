@@ -34,22 +34,22 @@ const Popup = ({ isVisible, onClose, onOptionPress, selectedEmotion, date, taskn
                         <Image source={require('../assets/icon-close.png')} style={styles.closeIcon} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleEmotionSelect('1')}>
-                        <Text style={{ fontSize: selected === '1' ? 40 : 30 }}>
+                        <Text style={{ fontSize: selected === '1' ? 50 : 30 }}>
                             &#x1F62B; {/* Sad */}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleEmotionSelect('2')}>
-                        <Text style={{ fontSize: selected === '2' ? 40 : 30 }}>
+                        <Text style={{ fontSize: selected === '2' ? 50 : 30 }}>
                             &#x1F621; {/* Angry */}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleEmotionSelect('3')}>
-                        <Text style={{ fontSize: selected === '3' ? 40 : 30 }}>
+                        <Text style={{ fontSize: selected === '3' ? 50 : 30 }}>
                             &#x1F615; {/* Confused */}
                         </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleEmotionSelect('4')}>
-                        <Text style={{ fontSize: selected === '4' ? 40 : 30 }}>
+                        <Text style={{ fontSize: selected === '4' ? 50 : 30 }}>
                             &#x1F929; {/* Happy */}
                         </Text>
                     </TouchableOpacity>
