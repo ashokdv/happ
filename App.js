@@ -13,9 +13,9 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Login" options={{headerShown: true, headerTitleAlign:'center'}} component={LoginView} />
-        <Stack.Screen name="Happ" component={HomeView} options={{headerTitleAlign:'center'}}/>
-        <Stack.Screen name="Register" component={RegisterView} options={{headerTitleAlign:'center'}}/>
-        <Stack.Screen name="Reset Password" component={ForgotPassword} options={{headerTitleAlign:'center'}}/>
+        <Stack.Screen name="Happ" component={HomeView} options={{headerShown: false, headerTitleAlign:'center'}}/>
+        <Stack.Screen name="Register" component={RegisterView} options={{headerShown: false, headerTitleAlign:'center'}}/>
+        <Stack.Screen name="Reset Password" component={ForgotPassword} options={{headerShown: false, headerTitleAlign:'center'}}/>
       </Stack.Navigator>
     </NavigationContainer>    
  );
