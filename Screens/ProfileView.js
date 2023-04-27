@@ -154,28 +154,6 @@ function ProfileScreen() {
             keyboardType='numeric'
           />    
         </View>
-        <View style={styles.inputContainer}>
-          <SelectList 
-            setSelected={(val) => setDegree(val)} 
-            data={degrees} 
-            save="value"
-            label="degrees"
-            boxStyles={{marginTop:10, width: '100%'}}
-            placeholder='Select Degree'
-            // defaultOption={{'key': '1', value: 'MS (Science)'}}
-        />
-        </View>
-        <View style={styles.inputContainer}>
-          <SelectList 
-            setSelected={(val) => setCourse(val)} 
-            data={courses} 
-            save="value"
-            label="courses"
-            boxStyles={{marginTop:10, width: '100%'}}
-            placeholder='Select Course'
-            // defaultOption={{'key': '1', value: 'Computer Science'}}
-        />
-        </View>
         {/* <View style={styles.inputContainer}>
           <MultipleSelectList 
             setSelected={(val) => setGenre(val)} 
