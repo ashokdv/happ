@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     bottomClick: {
         color: "blue",
         fontWeight: "bold",
-        fontSize: 20
+        fontSize: 16
     }
 })
 

@@ -159,7 +159,9 @@ function EmotionCalendar(days) {
         highlightDateContainerStyle={{backgroundColor: 'transparent'}}
         markingType={'multi-dot'} 
         daySelectionAnimation={{ type: 'border',  borderWidth: 2, borderHighlightColor: 'black' }}
-        calendarAnimation={{type: 'sequence', duration: 30}}
+        calendarAnimation={{type: 'sequence', duration: 20}}
+        maxDayComponentSize={50}
+        style={{height:100, width: screenWidth*0.95,paddingTop: 20, paddingBottom: 10}}
         />
 
       {selectedDate && (
@@ -168,7 +170,7 @@ function EmotionCalendar(days) {
             data={pieData}
             width={screenWidth}
             height={300}
-            paddingLeft="20"
+            paddingLeft={screenWidth*0.08}
             paddingBottom="20"
             chartConfig={{
               backgroundGradientFrom: "#1E2923",
