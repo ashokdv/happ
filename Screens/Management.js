@@ -44,20 +44,6 @@ function EmotionCalendar(days) {
   const [selectedDate, setSelectedDate] = useState((new Date()).toISOString().slice(0, 10));
 
 
-
-  const filteredEvents = events.filter(
-    (event) => event.date === selectedDate
-  )
-
-  const data = filteredEvents.reduce((acc, event) => {
-    if (!acc[event.emotion]) {
-      acc[event.emotion] = 1;
-    } else {
-      acc[event.emotion]++;
-    }
-    return acc;
-  }, {});
-
   const getEmotion = (key) => {
     if (key === '') {
       return 'Not given';
@@ -99,110 +85,200 @@ function EmotionCalendar(days) {
     }
   }
 
-  const pieData = Object.keys(data).map((emotion, index) => ({
-    name: getEmotion(emotion),
-    value: data[emotion],
-    color: getColorByEmotion(emotion),
-    legendFontColor: "black",
-    legendFontSize: 15
-  }));
+
+  if (Object.keys(events).length === 0) {
+
+    var filteredEvents = []
+
+    return (
+      <View style={{ marginBottom: 10 }}>
+  
+        {/* {console.log(events)} */}
+        {/* {console.log(JSON.stringify(markedDatesList))}
+        {console.log(JSON.stringify(sample))} */}
+  
+  
+        <CalendarStrip
+          selectedDate={selectedDate}
+          onDateSelected={(date) => setSelectedDate((new Date(date)).toISOString().slice(0, 10))}
+          showWeekNumber
+          calendarHeaderStyle={{ color: 'black' }}
+          calendarColor={'transparent'}
+          highlightDateNumberStyle={{ fontWeight: 'bold' }}
+          highlightDateContainerStyle={{ backgroundColor: 'transparent' }}
+          markingType={'multi-dot'}
+          daySelectionAnimation={{ type: 'border', borderWidth: 2, borderHighlightColor: 'black' }}
+          calendarAnimation={{ type: 'sequence', duration: 20 }}
+          maxDayComponentSize={50}
+          style={{ height: 100, width: screenWidth * 0.95, paddingTop: 20, paddingBottom: 10 }}
+        />
+  
+        {selectedDate && (
+          <View style={styles.pieContainer}>
+            <PieChart
+              data={[]}
+              width={screenWidth}
+              height={300}
+              paddingLeft={screenWidth * 0.08}
+              paddingBottom="20"
+              chartConfig={{
+                backgroundGradientFrom: "#1E2923",
+                backgroundGradientFromOpacity: 0,
+                backgroundGradientTo: "#08130D",
+                backgroundGradientToOpacity: 0.5,
+                color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+                strokeWidth: 3, // optional, default 3
+                barPercentage: 0.5,
+                useShadowColorFromDataset: false,
+                style: {
+                  paddingRight: 20
+                }
+              }}
+              accessor={"value"}
+              backgroundColor="transparent"
+              center={[0, 0]}
+              absolute
+            />
+  
+          </View>
+        )}
+        {filteredEvents.length == 0 && (
+          <View style={{ backgroundColor: 'transparent', marginTop: 150, marginLeft: screenWidth / 3, position: 'absolute' }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', fontStyle: 'italic' }}>No data exists</Text>
+          </View>
+        )}
+  
+      </View>
+    );
+
+
+
+  }
+  else {
+    const filteredEvents = events.filter(
+      (event) => event.date === selectedDate
+    )
+
+    const data = filteredEvents.reduce((acc, event) => {
+      if (!acc[event.emotion]) {
+        acc[event.emotion] = 1;
+      } else {
+        acc[event.emotion]++;
+      }
+      return acc;
+    }, {});
+
+    
+    const pieData = Object.keys(data).map((emotion, index) => ({
+      name: getEmotion(emotion),
+      value: data[emotion],
+      color: getColorByEmotion(emotion),
+      legendFontColor: "black",
+      legendFontSize: 15
+    }));
+
+
+
+    var emotionsByDateMap = {};
+    for (let i = 0; i < events.length; i++) {
+      var e = events[i];
+      var d = e.date;
+      var feeling = e.emotion;
+      if (emotionsByDateMap.hasOwnProperty(d)) {
+        var list = emotionsByDateMap[d];
+        list.push(feeling);
+        emotionsByDateMap[d] = list;
+      }
+      else {
+        var list = [];
+        list.push(feeling);
+        emotionsByDateMap[d] = list;
+      }
+    }
+
+    var markedDatesList = []
+    for (let date in emotionsByDateMap) {
+      var emotionsList = emotionsByDateMap[date];
+      var body = {};
+      body['date'] = date;
+      var dotList = [];
+      for (let i = 0; i < emotionsList.length; i++) {
+        var dotBody = {}
+        dotBody['color'] = getColorByEmotion(emotionsList[i]);
+        dotList.push(dotBody);
+      }
+      body['dots'] = dotList;
+      markedDatesList.push(body);
+    }
+
+    return (
+      <View style={{ marginBottom: 10 }}>
+  
+        {/* {console.log(events)} */}
+        {/* {console.log(JSON.stringify(markedDatesList))}
+        {console.log(JSON.stringify(sample))} */}
+  
+  
+        <CalendarStrip
+          selectedDate={selectedDate}
+          onDateSelected={(date) => setSelectedDate((new Date(date)).toISOString().slice(0, 10))}
+          markedDates={markedDatesList}
+          showWeekNumber
+          calendarHeaderStyle={{ color: 'black' }}
+          calendarColor={'transparent'}
+          highlightDateNumberStyle={{ fontWeight: 'bold' }}
+          highlightDateContainerStyle={{ backgroundColor: 'transparent' }}
+          markingType={'multi-dot'}
+          daySelectionAnimation={{ type: 'border', borderWidth: 2, borderHighlightColor: 'black' }}
+          calendarAnimation={{ type: 'sequence', duration: 20 }}
+          maxDayComponentSize={50}
+          style={{ height: 100, width: screenWidth * 0.95, paddingTop: 20, paddingBottom: 10 }}
+        />
+  
+        {selectedDate && (
+          <View style={styles.pieContainer}>
+            <PieChart
+              data={pieData}
+              width={screenWidth}
+              height={300}
+              paddingLeft={screenWidth * 0.07}
+              paddingBottom="20"
+              chartConfig={{
+                backgroundGradientFrom: "#1E2923",
+                backgroundGradientFromOpacity: 0,
+                backgroundGradientTo: "#08130D",
+                backgroundGradientToOpacity: 0.5,
+                color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+                strokeWidth: 3, // optional, default 3
+                barPercentage: 0.5,
+                useShadowColorFromDataset: false,
+                style: {
+                  paddingRight: 20
+                }
+              }}
+              accessor={"value"}
+              backgroundColor="transparent"
+              center={[0, 0]}
+              absolute
+            />
+  
+          </View>
+        )}
+        {filteredEvents.length == 0 && (
+          <View style={{ backgroundColor: 'transparent', marginTop: 150, marginLeft: screenWidth / 3, position: 'absolute' }}>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', fontStyle: 'italic' }}>No data exists</Text>
+          </View>
+        )}
+  
+      </View>
+    );
+
+
+
+
+  }
 
   
-
-  var emotionsByDateMap = {};
-  for(let i = 0; i<events.length; i++){
-    var e = events[i];
-    var d = e.date;
-    var feeling = e.emotion;
-    if(emotionsByDateMap.hasOwnProperty(d)){
-      var list = emotionsByDateMap[d];
-      list.push(feeling);
-      emotionsByDateMap[d] = list;
-    }
-    else {
-      var list = [];
-      list.push(feeling);
-      emotionsByDateMap[d] = list;
-    }
-  }
-
-  var markedDatesList = []
-  for(let date in emotionsByDateMap){
-    var emotionsList = emotionsByDateMap[date];
-    var body = {};
-    body['date'] = date;
-    var dotList = [];
-    for(let i = 0; i < emotionsList.length; i++){
-      var dotBody = {}
-      dotBody['color'] = getColorByEmotion(emotionsList[i]);
-      dotList.push(dotBody);
-    }
-    body['dots'] = dotList;
-    markedDatesList.push(body);
-  }
-
-
-  return (
-    <View style={{ marginBottom: 10 }}>
-
-      {/* {console.log(events)} */}
-      {/* {console.log(JSON.stringify(markedDatesList))}
-      {console.log(JSON.stringify(sample))} */}
-
-     
-      <CalendarStrip
-        selectedDate={selectedDate}
-        onDateSelected={(date) => setSelectedDate((new Date(date)).toISOString().slice(0, 10))}
-        markedDates={markedDatesList}
-        showWeekNumber
-        calendarHeaderStyle={{ color: 'black' }}
-        calendarColor={'transparent'}
-        highlightDateNumberStyle={{fontWeight: 'bold' }}
-        highlightDateContainerStyle={{backgroundColor: 'transparent'}}
-        markingType={'multi-dot'} 
-        daySelectionAnimation={{ type: 'border',  borderWidth: 2, borderHighlightColor: 'black' }}
-        calendarAnimation={{type: 'sequence', duration: 20}}
-        maxDayComponentSize={50}
-        style={{height:100, width: screenWidth*0.95,paddingTop: 20, paddingBottom: 10}}
-        />
-
-      {selectedDate && (
-        <View style={styles.pieContainer}>
-          <PieChart
-            data={pieData}
-            width={screenWidth}
-            height={300}
-            paddingLeft={screenWidth*0.08}
-            paddingBottom="20"
-            chartConfig={{
-              backgroundGradientFrom: "#1E2923",
-              backgroundGradientFromOpacity: 0,
-              backgroundGradientTo: "#08130D",
-              backgroundGradientToOpacity: 0.5,
-              color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-              strokeWidth: 3, // optional, default 3
-              barPercentage: 0.5,
-              useShadowColorFromDataset: false,
-              style: {
-                paddingRight: 20
-              }
-            }}
-            accessor={"value"}
-            backgroundColor="transparent"
-            center={[0, 0]}
-            absolute
-          />
-
-        </View>
-      )}
-      {filteredEvents.length == 0 && (
-        <View style={{backgroundColor: 'transparent', marginTop: 150, marginLeft: screenWidth/3, position: 'absolute'}}>
-          <Text style={{fontSize: 16, fontWeight: 'bold', fontStyle: 'italic'}}>No data exists</Text>
-        </View>
-      )}
-
-    </View>
-  );
 }
 
 function Management() {
@@ -564,8 +640,8 @@ function Management() {
         </View>
       </Modal>
       <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
-          <MaterialIcons name="add" size={24} color="white" />
-        </TouchableOpacity>
+        <MaterialIcons name="add" size={24} color="white" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }

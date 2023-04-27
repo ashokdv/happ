@@ -515,10 +515,10 @@ function HomeScreen({ navigation }) {
                       <View key={index} style={{ display: 'flex', flexDirection: 'row' }} >
                         <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
                         <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
+                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
                           <Text style={{ fontWeight: 'bold', fontSize: 16, marginRight: 5, textAlign: 'left', flex: 3 }}>{task.taskname}</Text>
                         </LongPressGestureHandler>
-                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
+                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
                           <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
                         </LongPressGestureHandler>
                       </View>
@@ -534,10 +534,10 @@ function HomeScreen({ navigation }) {
                       <View style={{ display: 'flex', flexDirection: 'row' }}>
                         <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
                         <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
+                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
                           <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
                         </LongPressGestureHandler>
-                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
+                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
                           <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
                         </LongPressGestureHandler>
                       </View>
@@ -553,10 +553,10 @@ function HomeScreen({ navigation }) {
                       <View style={{ display: 'flex', flexDirection: 'row' }}>
                         <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
                         <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
+                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
                           <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
                         </LongPressGestureHandler>
-                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
+                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
                           <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
                         </LongPressGestureHandler>
                       </View>
