@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/core';
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import { StyleSheet, Text, View, TextInput, Image, KeyboardAvoidingView, TouchableOpacity, Button} from 'react-native';
 import { auth, createUserWithEmailAndPassword, db, addDoc, collection} from '../firebase';
 import { ScrollView } from 'react-native';
@@ -11,7 +11,6 @@ import { MultipleSelectList, SelectList } from 'react-native-dropdown-select-lis
 
 const RegisterView = () => {
     const navigation = useNavigation();
-    const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -24,7 +23,7 @@ const RegisterView = () => {
     const [weight, setWeight] = useState(0);
 
     const login = () => {
-        navigation.replace("Login")
+        navigation.goBack();
     }
 
     const onRegister = () => {
@@ -53,7 +52,7 @@ const RegisterView = () => {
             const docRef =  addDoc(collection(db, "user"), data);
             docRef
               .then(() => {
-                    alert("Successfully registered")
+                    alert("Successfully registered");
                 })
                 .catch((error) => {
                     alert(error)
@@ -117,10 +116,10 @@ const RegisterView = () => {
     ]
 
     const emotions = [
-        {key:'1', value:'High'},
-        {key:'2', value:'Medium'},
-        {key:'3', value:'Low'},
-        
+        {key:'1', value:'Happy'},
+        {key:'2', value:'Sad'},
+        {key:'3', value:'Confused'},
+        {key:'4', value:'Angry'}
     ]
 
 
@@ -155,7 +154,7 @@ const RegisterView = () => {
             behavior="padding"
         >
          <Image source = {require('../images/happiness.png')} style={styles.image} />
-          <View style={styles.inputContainer}>
+          <View style={styles.inputContainerMain}>
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
@@ -163,8 +162,8 @@ const RegisterView = () => {
                     value={firstName}
                     onChangeText={ value => setFirstName(value)  }
                     // style={styles.inputText}
-                    style={{flex: 1}}
-                    // placeholderTextColor="black"
+                    style={styles.inputTextInput}
+                    placeholderTextColor="black"
                     />
                 </View>
             </View>
@@ -175,8 +174,8 @@ const RegisterView = () => {
                     value={lastName}
                     onChangeText={ value => setLastName(value)  }
                     // style={styles.inputText}
-                    style={{flex: 1}}
-                    // placeholderTextColor="black"
+                    style={styles.inputTextInput}
+                    placeholderTextColor="black"
                     />
                 </View>
             </View>
@@ -188,8 +187,8 @@ const RegisterView = () => {
                     value={email}
                     onChangeText={ value => setEmail(value)  }
                     // style={styles.inputText}
-                    style={{flex: 1}}
-                    // placeholderTextColor="black"
+                    style={styles.inputTextInput}
+                    placeholderTextColor="black"
                     />
                 </View>
             </View>
@@ -200,8 +199,10 @@ const RegisterView = () => {
                 placeholder = "Enter your password"
                 value={password}
                 onChangeText={ value => setPassword(value)  }
-                style={{flex: 1}}
+                style={styles.inputTextInput}
                 // placeholderTextColor="black"
+                secureTextEntry
+                placeholderTextColor='black'
                 />
                 </View>
             </View>
@@ -213,19 +214,22 @@ const RegisterView = () => {
                     value={confirmPassword}
                     onChangeText={ value => setConfirmPassword(value)  }
                     // style={styles.inputText}
-                    style={{flex: 1}}
+                    style={styles.inputTextInput}
                     // placeholderTextColor="black"
                     underlineColorAndroid="transparent"
+                    secureTextEntry
+                    placeholderTextColor='black'
                     />
                 </View>
             </View>
             <View>
                 <View style={styles.sectionStyle}>
                 <TextInput
-                    style={{flex: 1}}
+                    style={styles.inputTextInput}
                     placeholder="Date of Birth"
                     underlineColorAndroid="transparent"
                     value={pickedDate}
+                    placeholderTextColor='black'
                 />
                 <TouchableOpacity onPress={showDatePicker}>
                 <Image
@@ -246,34 +250,42 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = " Phone Number"
+                    placeholder = "Enter Phone Number"
                     value={phoneNumber}
                     onChangeText={ value => setPhoneNumber(value)  }
-                    style={{flex: 1}}
+                    style={styles.inputTextInput}
                     underlineColorAndroid="transparent"
+                    keyboardType='numeric'
+                    placeholderTextColor='black'
                     />
                 </View>
             </View>
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = " Weight in Lbs"
+                    placeholder = "Weight in Lbs"
                     value={weight}
                     onChangeText={ value => setWeight(value)  }
-                    style={{flex: 1}}
+                    style={styles.inputTextInput}
                     underlineColorAndroid="transparent"
+                    keyboardType='numeric'
+                    placeholderTextColor='black'
                     />
                 </View>
             </View>
+            <View >
             <View style={styles.inputContainerDropDown}>
                 <SelectList 
-                    setSelected={(val) => setEmotion(val)} 
+                    setSelected={(val) => setEmotion(val)}
                     data={emotions} 
                     save="value"
                     placeholder='Select Emotion'
-                    boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
+                    searchPlaceholder='Search Emotion'
+                    boxStyles={{marginTop:10,width: '100%', backgroundColor: '#fff'}}
                 />
             </View>
+            </View>
+            
             <View style={styles.inputContainerDropDown}>
                 <MultipleSelectList 
                 setSelected={(val) => setSelected(val)} 
@@ -282,12 +294,14 @@ const RegisterView = () => {
                 label="hobbies"
                 boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
                 placeholder='Select Hobbies'
+                searchPlaceholder='Search Hobbies'
             />
             </View>
             <View style={styles.inputContainerDropDown}>
                 <SelectList 
                     setSelected={(val) => setDegree(val)} 
                     data={degrees} 
+                    searchPlaceholder='Select Degree'
                     save="value"
                     boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
                     placeholder='Select Degree'
@@ -299,6 +313,7 @@ const RegisterView = () => {
                     data={courses} 
                     save="value"
                     placeholder='Select Course'
+                    searchPlaceholder='Search Courses'
                     boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
                 />
             </View>
@@ -310,6 +325,7 @@ const RegisterView = () => {
                 label="genre"
                 boxStyles={{marginTop:10, width: '100%', backgroundColor: '#fff'}}
                 placeholder='Select Genres'
+                searchPlaceholder='Search Genres'
             />
             </View>
             <View style={styles.buttonView}>
@@ -353,10 +369,15 @@ const styles = StyleSheet.create({
         width: '80%',
         borderRadius:'20%'
     },
+    inputContainerMain: {
+        width: '80%',
+        borderRadius:'20%'
+    },
     inputContainerDropDown: {
-        width: '100%',
+        width: '94%',
         borderRadius:'20%',
         flex:1,
+        marginLeft: 10,
     },
     inputText: {
         backgroundColor: 'white',
@@ -364,6 +385,11 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         borderRadius: 20,
         marginTop: 10
+    },
+    inputTextInput:{
+        paddingHorizontal: 15,
+        paddingVertical: 15,
+        flex: 1
     },
     buttonView: {
         width: '100%',
@@ -443,6 +469,14 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderWidth: 0.5,
         borderColor: '#000',
+        height: 45,
+        borderRadius: 5,
+        margin: 10,
+    },
+    sectionStyleOne: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
         height: 40,
         borderRadius: 5,
         margin: 10,

@@ -10,7 +10,6 @@ import { toFirestore } from "firebase/firestore/lite";
 //TODO: Add date picker for DOB 
 import Management from './Management.js';
 import { MultipleSelectList, SelectList } from 'react-native-dropdown-select-list'
-import Example from './DatePicker.js';
 import ProfileScreen from './ProfileView.js';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';

@@ -21,6 +21,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { AccordionList } from 'accordion-collapse-react-native';
 import { Dimensions } from "react-native";
 const screenWidth = Dimensions.get("window").width;
+import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
 
 import {
   LineChart, StackedBarChart
@@ -32,6 +33,42 @@ if(Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+function EmotionCalendar(days) {
+  // console.log("From emotuon", days);
+
+  const [selected, setSelected] = useState(days["selectedDays"]);
+  // YYYY-MM-DD
+  return (
+    <View style={{ flex: 1, marginBottom: 10}}>
+     <View style={{flexDirection: 'row', marginBottom: 20}}>
+        <View style = {styles.circleHappy} />
+        <Text style={styles.textHappy}>
+            Happy
+          </Text>
+        <View style = {styles.circleConfused}>
+        </View>
+        <Text style={styles.textConfused}>
+            Confused
+          </Text>
+        <View style = {styles.circleAngry} />
+          <Text style={styles.textAngry}>
+            Angry
+          </Text>
+        
+        <View style = {styles.circleSad}>
+        </View>
+        <Text style={styles.textSad}>
+            Sad
+        </Text>
+        
+     </View>
+     <Calendar
+      markedDates={selected}
+      enableSwipeMonths={true}    
+      />
+    </View>
+  );
+}
 
 function Management() {
   const navigation = useNavigation();
@@ -40,7 +77,8 @@ function Management() {
   const [dates, setDatesData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [id, setID] = useState(null);
-
+  const [goals, setGoals] = useState([]);
+  const [selected, setSelected] = useState({});
   const weightRef =  collection(db, "weight-mgmt");
 
   function dateStrng(date) {
@@ -67,19 +105,173 @@ function Management() {
     }
 
   }
+  // #cccccc
+  // #737373
+  // #000000
+  const lastFiveDays = [];
+  const lastFiveDates = [];
+  const currentDate = new Date()
+  for (let i = 0; i < 5; i++) {
+    const date = new Date();
+    date.setDate(currentDate.getDate() -4 + i);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Month is zero-indexed, add 1 to get correct month
+    const year = String(date.getFullYear()); // Get last 2 digits of year
+    const dateString = `${month}/${day}/${year}`;
+    const dayStr = `${month}/${day}`
+    lastFiveDays.push(dateString);
+    lastFiveDates.push(dayStr);
+  }
+
+  // Goals, Set Goals
+  const activitiesRef =  collection(db, "activities");
+  const getActivities = async() => {
+    await getDocs(
+      query(activitiesRef, where("email", "==", auth.currentUser.email))
+    ).then((snap) => {
+      let temp_data = [];
+      for (var i=0; i < snap.docs.length; i++){
+        temp_data.push({
+          ...snap.docs[i].data(),
+        });
+      }
+      var res = []
+      for (var i = 0 ; i < lastFiveDates.length ; i++) {
+        // console.log("1", lastFiveDays[i])
+        var filteredDates = temp_data[0]["activities"].filter(obj => obj.date == lastFiveDays[i]);
+        // console.log("2",filteredDates[0]);
+        if (filteredDates[0] !== undefined) {
+          // console.log("2",filteredDates[0]["tasks"]);
+          var inProgCount = null;
+          var noCount = null;
+          var yesCount = null;
+          var tempDates = filteredDates[0]["tasks"];
+          // console.log("2",filteredDates[0]["tasks"].length);
+          for (var j = 0; j < tempDates.length; j++ ){
+            // console.log("3",filteredDates[0]["tasks"]);
+            if (tempDates[j]["completed"] == '0'){
+              inProgCount = inProgCount + 1
+            } else if (tempDates[j]["completed"] == '1') {
+              noCount = noCount + 1
+            } else if (tempDates[j]["completed"] == '2') {
+              yesCount = yesCount + 1
+            } 
+          }
+          res.push([inProgCount, noCount, yesCount])
+        } else {
+          res.push([]);
+        }
+      }
+      // console.log('---res', res);
+      // if (temp_data )
+      setGoals(res);
+    }).catch(err => {err.message});
+  }
+
+
+  const getCalendarActivities = async() => {
+    function convertDateFormat(dateString) {
+      var parts = dateString.split("/");      
+      var day = parts[1];
+      var month = parts[0];
+      var year = parts[2];
+      var formattedDate = year + "-" + month + "-" + day;      
+      return formattedDate;
+    }
+    
+
+    await getDocs(
+      query(activitiesRef, where("email", "==", auth.currentUser.email))
+    ).then(
+      (snap) => {
+        let temp_data = [];
+        for (var i=0; i < snap.docs.length; i++){
+          temp_data.push({
+          ...snap.docs[i].data(),
+          });
+        }
+
+        // console.log(temp_data[0]["activities"]);
+        var res = {};
+        var userActivities = temp_data[0]["activities"];
+        for (var i=0; i < userActivities.length; i++) {
+          var getActivitiesDate = userActivities[i]["date"];
+          var formattedDate = convertDateFormat(getActivitiesDate);
+          
+          // console.log("--", formattedDate);
+          var userTasks = userActivities[i]["tasks"]
+          var happyCount = null;
+          var sadCount = null;
+          var angryCount = 0;
+          var confusedCount = 0;
+          
+          // console.log('--1', userTasks);
+          for (var j =0; j < userTasks.length; j++){
+            if (userTasks[j]["emotion"] == '4'){
+              happyCount = happyCount + 1
+            } else if (userTasks[j]["emotion"] == '3'){
+              confusedCount = confusedCount + 1
+            } else if (userTasks[j]["emotion"] == '2'){
+              angryCount = angryCount + 1
+            } else if (userTasks[j]["emotion"] == '1'){
+              sadCount = sadCount + 1
+            } 
+          }
+
+          // console.log("-ha", happyCount);
+          // console.log("-ha", sadCount);
+          // console.log("-ha", angryCount);
+          // console.log("-ha", confusedCount);
+          
+          
+          var max = happyCount; 
+          var maxVarName = 'h'; 
+
+          if (confusedCount > max) {
+            max = confusedCount ;
+            maxVarName = 'c';
+          }
+
+          if (sadCount > max) {
+            max = sadCount;
+            maxVarName = 's';
+          }
+
+          if (angryCount > max) {
+            max = angryCount;
+            maxVarName = 'a';
+          }
+
+          // console.log("--", maxVarName);
+          if (maxVarName === 'h') {
+            res[formattedDate] = {selected: true, marked: true, selectedColor: '#4CF71F' }
+          } else if (maxVarName === 's') {
+            res[formattedDate] = {selected: true, marked: true, selectedColor: '#C0D2D6' } // #C0D2D6 #D9FCA4
+          } else if (maxVarName === 'a') {
+            res[formattedDate] = {selected: true, marked: true, selectedColor: '#FC2626' } 
+          } else if (maxVarName === 'c') {
+            res[formattedDate] = {selected: true, marked: true, selectedColor: '#26D3FC' }  
+          }
+        }
+        // console.log("---res",res);
+        setSelected(res);
+      }
+    ).catch(err => {err.message})
+  }
+    
+
+
+
+  
 
   const emotion_data = {
-    labels: ["Test1", "Test2"],
-    legend: ["L1", "L2", "L3"],
-    data: [
-      [20, 20, 60],
-      [40, 40, 20]
-    ],
-    barColors: ["#dfe4ea", "#ced6e0", "#a4b0be"]
+    labels: lastFiveDates,
+    legend: ["In Progress", "No", "Yes" ],
+    data: goals, 
+    barColors: ["#5CC6F7", "#F7885C", "#17F538"]
   };
 
   const getWeightData = async() => {
-
     await getDocs(
       query(weightRef, where("email", "==", auth.currentUser.email))
     ).then((snap) => {
@@ -91,10 +283,9 @@ function Management() {
         })
       
       }
+      // console.log("--weufht", weight_data);
       setID(weight_data[0].id);
-      // let arr = sortObj(weight_data[0].weights);
       let weights = []
-      // let dates = []
       const currentDate = new Date();
 
       // Generate last 7 days in a single string for each day
@@ -138,6 +329,8 @@ function Management() {
 
   useEffect(() => {
     getWeightData();
+    getActivities();
+    getCalendarActivities();
     navigation.addListener("focus", () => setLoading(!loading));
   }, [navigation, loading]);
 
@@ -167,17 +360,7 @@ function Management() {
 
   const sections = [
     {
-      title: 'Weight Management',
-      content: <LineChart
-                data={data}
-                width={screenWidth}
-                height={220}
-                chartConfig={chartConfig}
-                bezier
-                />
-    },
-    {
-      title: 'Emotion Management',
+      title: 'Goal Management',
       content: <StackedBarChart
               data={emotion_data}
               width={screenWidth}
@@ -197,6 +380,20 @@ function Management() {
                 borderRadius: 16,
               }}
     />
+    },
+    {
+      title: 'Emotion Calendar',
+      content: <EmotionCalendar selectedDays={selected}/>
+    },
+    {
+      title: 'Weight Management',
+      content: <LineChart
+                data={data}
+                width={screenWidth}
+                height={220}
+                chartConfig={chartConfig}
+                bezier
+                />
     }
   ];
 
@@ -228,12 +425,13 @@ function Management() {
   }
 
 
-  const [weight, setWeight] = useState(null);
+  const [weight, setWeight] = useState(0);
   const [modalVisible, setModalVisible] = useState(false);
-  function submitFunction() {
+  async function submitFunction() {
     setModalVisible(false);
     setWeight(weight);
-    updateUserWeight();
+    await updateUserWeight();
+    await getWeightData();
   }
 
   return (
@@ -275,10 +473,7 @@ function Management() {
           style={styles.touchableOpacityStyle}
           onPress={() => setModalVisible(true)}>
           <Image
-            source={{
-              uri:
-                'https://raw.githubusercontent.com/AboutReact/sampleresource/master/plus_icon.png',
-            }}
+            source = {require('../images/plus.png')}
             style={styles.floatingButtonStyle}
           />
         </TouchableOpacity>
@@ -369,13 +564,64 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modalText: {
-    marginBottom: 20,
-    textAlign: 'center',
+    backgroundColor: '#cccccc',
     paddingHorizontal: 15,
     paddingVertical: 15,
+    borderRadius: 5,
     marginTop: 10,
-    backgroundColor: 'white',
+    marginBottom: 10,
+    width: 150,
+    textAlign: 'center',
+    justifyContent: 'center'
   },
+  textHappy: {
+    // paddingLeft: 10
+    paddingRight: 10,
+    // textAlign: 'center',
+    justifyContent: 'space-between'
+  },
+  textConfused: {
+    // marginLeft: 15
+    paddingRight: 10,
+    justifyContent: 'space-between'
+  },
+  textAngry: {
+    paddingRight: 10,
+    justifyContent: 'space-between'
+  },
+  textSad: {
+    // paddingRight: 30,
+    justifyContent: 'space-between'
+  },
+  circleHappy: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#4CF71F',
+    marginRight:5
+  },
+  circleConfused: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#26D3FC',
+    marginRight:5
+  },
+  circleAngry: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#FC2626',
+    marginRight:5
+  },
+  circleSad: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#C0D2D6',
+    marginRight:5
+  }
 });
 
 export default Management;
+
