@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -15,57 +15,188 @@ import {
   TextInput,
   Modal
 } from 'react-native';
-import {useNavigation} from '@react-navigation/core';
+import { useNavigation } from '@react-navigation/core';
 import { auth, signOut } from '../firebase';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { AccordionList } from 'accordion-collapse-react-native';
 import { Dimensions } from "react-native";
 const screenWidth = Dimensions.get("window").width;
 import { Calendar, CalendarList, Agenda } from 'react-native-calendars';
+import CalendarStrip from 'react-native-calendar-strip';
 
 import {
-  LineChart, StackedBarChart
+  LineChart, PieChart, StackedBarChart
 } from "react-native-chart-kit";
-import { db, addDoc, collection, query, getDocs,} from '../firebase';
-import { doc, setDoc, getDoc, where, updateDoc } from "firebase/firestore"; 
+import { db, addDoc, collection, query, getDocs, } from '../firebase';
+import { doc, setDoc, getDoc, where, updateDoc } from "firebase/firestore";
+import { ImageBackground } from 'react-native';
 
-if(Platform.OS === 'android') {
+if (Platform.OS === 'android') {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
 function EmotionCalendar(days) {
   // console.log("From emotuon", days);
 
-  const [selected, setSelected] = useState(days["selectedDays"]);
-  // YYYY-MM-DD
+  const [events, setEvents] = useState(days["selectedDays"]);
+  const [selectedDate, setSelectedDate] = useState((new Date()).toISOString().slice(0, 10));
+
+
+
+  const filteredEvents = events.filter(
+    (event) => event.date === selectedDate
+  )
+
+  const data = filteredEvents.reduce((acc, event) => {
+    if (!acc[event.emotion]) {
+      acc[event.emotion] = 1;
+    } else {
+      acc[event.emotion]++;
+    }
+    return acc;
+  }, {});
+
+  const getEmotion = (key) => {
+    if (key === '') {
+      return 'Not given';
+    }
+    else if (key === '1') {
+      return 'Sad';
+    }
+    else if (key === '2') {
+      return 'Angry';
+    }
+    else if (key === '3') {
+      return 'Confused';
+    }
+    else if (key === '4') {
+      return 'Happy';
+    }
+  }
+
+  const getColorByEmotion = (key) => {
+    if (key === '') {
+      //Not yet given
+      return '#D8D8D8';
+    }
+    else if (key === '1') {
+      //Sad
+      return '#556FB5';
+    }
+    else if (key === '2') {
+      //Angry
+      return '#FF6969';
+    }
+    else if (key === '3') {
+      //Confused
+      return '#F9D949';
+    }
+    else if (key === '4') {
+      //Happy
+      return '#98D8AA';
+    }
+  }
+
+  const pieData = Object.keys(data).map((emotion, index) => ({
+    name: getEmotion(emotion),
+    value: data[emotion],
+    color: getColorByEmotion(emotion),
+    legendFontColor: "black",
+    legendFontSize: 15
+  }));
+
+  
+
+  var emotionsByDateMap = {};
+  for(let i = 0; i<events.length; i++){
+    var e = events[i];
+    var d = e.date;
+    var feeling = e.emotion;
+    if(emotionsByDateMap.hasOwnProperty(d)){
+      var list = emotionsByDateMap[d];
+      list.push(feeling);
+      emotionsByDateMap[d] = list;
+    }
+    else {
+      var list = [];
+      list.push(feeling);
+      emotionsByDateMap[d] = list;
+    }
+  }
+
+  var markedDatesList = []
+  for(let date in emotionsByDateMap){
+    var emotionsList = emotionsByDateMap[date];
+    var body = {};
+    body['date'] = date;
+    var dotList = [];
+    for(let i = 0; i < emotionsList.length; i++){
+      var dotBody = {}
+      dotBody['color'] = getColorByEmotion(emotionsList[i]);
+      dotList.push(dotBody);
+    }
+    body['dots'] = dotList;
+    markedDatesList.push(body);
+  }
+
+
   return (
-    <View style={{ flex: 1, marginBottom: 10}}>
-     <View style={{flexDirection: 'row', marginBottom: 20}}>
-        <View style = {styles.circleHappy} />
-        <Text style={styles.textHappy}>
-            Happy
-          </Text>
-        <View style = {styles.circleConfused}>
+    <View style={{ marginBottom: 10 }}>
+
+      {/* {console.log(events)} */}
+      {/* {console.log(JSON.stringify(markedDatesList))}
+      {console.log(JSON.stringify(sample))} */}
+
+     
+      <CalendarStrip
+        selectedDate={selectedDate}
+        onDateSelected={(date) => setSelectedDate((new Date(date)).toISOString().slice(0, 10))}
+        markedDates={markedDatesList}
+        showWeekNumber
+        calendarHeaderStyle={{ color: 'black' }}
+        calendarColor={'transparent'}
+        highlightDateNumberStyle={{fontWeight: 'bold' }}
+        highlightDateContainerStyle={{backgroundColor: 'transparent'}}
+        markingType={'multi-dot'} 
+        daySelectionAnimation={{ type: 'border',  borderWidth: 2, borderHighlightColor: 'black' }}
+        calendarAnimation={{type: 'sequence', duration: 30}}
+        />
+
+      {selectedDate && (
+        <View style={styles.pieContainer}>
+          <PieChart
+            data={pieData}
+            width={screenWidth}
+            height={300}
+            paddingLeft="20"
+            paddingBottom="20"
+            chartConfig={{
+              backgroundGradientFrom: "#1E2923",
+              backgroundGradientFromOpacity: 0,
+              backgroundGradientTo: "#08130D",
+              backgroundGradientToOpacity: 0.5,
+              color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+              strokeWidth: 3, // optional, default 3
+              barPercentage: 0.5,
+              useShadowColorFromDataset: false,
+              style: {
+                paddingRight: 20
+              }
+            }}
+            accessor={"value"}
+            backgroundColor="transparent"
+            center={[0, 0]}
+            absolute
+          />
+
         </View>
-        <Text style={styles.textConfused}>
-            Confused
-          </Text>
-        <View style = {styles.circleAngry} />
-          <Text style={styles.textAngry}>
-            Angry
-          </Text>
-        
-        <View style = {styles.circleSad}>
+      )}
+      {filteredEvents.length == 0 && (
+        <View style={{backgroundColor: 'transparent', marginTop: 150, marginLeft: screenWidth/3, position: 'absolute'}}>
+          <Text style={{fontSize: 16, fontWeight: 'bold', fontStyle: 'italic'}}>No data exists</Text>
         </View>
-        <Text style={styles.textSad}>
-            Sad
-        </Text>
-        
-     </View>
-     <Calendar
-      markedDates={selected}
-      enableSwipeMonths={true}    
-      />
+      )}
+
     </View>
   );
 }
@@ -79,7 +210,7 @@ function Management() {
   const [id, setID] = useState(null);
   const [goals, setGoals] = useState([]);
   const [selected, setSelected] = useState({});
-  const weightRef =  collection(db, "weight-mgmt");
+  const weightRef = collection(db, "weight-mgmt");
 
   function dateStrng(date) {
     const day = date.getDate();
@@ -89,8 +220,8 @@ function Management() {
     return dateString;
   }
 
-  const updateUserWeight = async() => {
-  
+  const updateUserWeight = async () => {
+
     const userUpdateData = doc(db, "weight-mgmt", id);
     const currentDate = dateStrng(new Date())
     var temp = {}
@@ -98,10 +229,10 @@ function Management() {
     if (weight !== null) {
       await setDoc(userUpdateData, {
         weights: temp,
-      }, {merge: true}).then(() => {
+      }, { merge: true }).then(() => {
         Alert.alert(
-          'Weight Added for today'        );
-      }).catch((err) => {err.message})
+          'Weight Added for today');
+      }).catch((err) => { err.message })
     }
 
   }
@@ -113,7 +244,7 @@ function Management() {
   const currentDate = new Date()
   for (let i = 0; i < 5; i++) {
     const date = new Date();
-    date.setDate(currentDate.getDate() -4 + i);
+    date.setDate(currentDate.getDate() - 4 + i);
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0"); // Month is zero-indexed, add 1 to get correct month
     const year = String(date.getFullYear()); // Get last 2 digits of year
@@ -124,19 +255,19 @@ function Management() {
   }
 
   // Goals, Set Goals
-  const activitiesRef =  collection(db, "activities");
-  const getActivities = async() => {
+  const activitiesRef = collection(db, "activities");
+  const getActivities = async () => {
     await getDocs(
       query(activitiesRef, where("email", "==", auth.currentUser.email))
     ).then((snap) => {
       let temp_data = [];
-      for (var i=0; i < snap.docs.length; i++){
+      for (var i = 0; i < snap.docs.length; i++) {
         temp_data.push({
           ...snap.docs[i].data(),
         });
       }
       var res = []
-      for (var i = 0 ; i < lastFiveDates.length ; i++) {
+      for (var i = 0; i < lastFiveDates.length; i++) {
         // console.log("1", lastFiveDays[i])
         var filteredDates = temp_data[0]["activities"].filter(obj => obj.date == lastFiveDays[i]);
         // console.log("2",filteredDates[0]);
@@ -147,15 +278,15 @@ function Management() {
           var yesCount = null;
           var tempDates = filteredDates[0]["tasks"];
           // console.log("2",filteredDates[0]["tasks"].length);
-          for (var j = 0; j < tempDates.length; j++ ){
+          for (var j = 0; j < tempDates.length; j++) {
             // console.log("3",filteredDates[0]["tasks"]);
-            if (tempDates[j]["completed"] == '0'){
+            if (tempDates[j]["completed"] == '0') {
               inProgCount = inProgCount + 1
             } else if (tempDates[j]["completed"] == '1') {
               noCount = noCount + 1
             } else if (tempDates[j]["completed"] == '2') {
               yesCount = yesCount + 1
-            } 
+            }
           }
           res.push([inProgCount, noCount, yesCount])
         } else {
@@ -165,115 +296,83 @@ function Management() {
       // console.log('---res', res);
       // if (temp_data )
       setGoals(res);
-    }).catch(err => {err.message});
+    }).catch(err => { err.message });
   }
 
 
-  const getCalendarActivities = async() => {
+  const getCalendarActivities = async () => {
     function convertDateFormat(dateString) {
-      var parts = dateString.split("/");      
+      var parts = dateString.split("/");
       var day = parts[1];
       var month = parts[0];
       var year = parts[2];
-      var formattedDate = year + "-" + month + "-" + day;      
+      var formattedDate = year + "-" + month + "-" + day;
       return formattedDate;
     }
-    
+
 
     await getDocs(
       query(activitiesRef, where("email", "==", auth.currentUser.email))
     ).then(
       (snap) => {
         let temp_data = [];
-        for (var i=0; i < snap.docs.length; i++){
+        for (var i = 0; i < snap.docs.length; i++) {
           temp_data.push({
-          ...snap.docs[i].data(),
+            ...snap.docs[i].data(),
           });
         }
 
         // console.log(temp_data[0]["activities"]);
-        var res = {};
+        var res = [];
         var userActivities = temp_data[0]["activities"];
-        for (var i=0; i < userActivities.length; i++) {
+        for (var i = 0; i < userActivities.length; i++) {
           var getActivitiesDate = userActivities[i]["date"];
           var formattedDate = convertDateFormat(getActivitiesDate);
-          
+
           // console.log("--", formattedDate);
           var userTasks = userActivities[i]["tasks"]
           var happyCount = null;
           var sadCount = null;
           var angryCount = 0;
           var confusedCount = 0;
-          
+
           // console.log('--1', userTasks);
-          for (var j =0; j < userTasks.length; j++){
-            if (userTasks[j]["emotion"] == '4'){
-              happyCount = happyCount + 1
-            } else if (userTasks[j]["emotion"] == '3'){
-              confusedCount = confusedCount + 1
-            } else if (userTasks[j]["emotion"] == '2'){
-              angryCount = angryCount + 1
-            } else if (userTasks[j]["emotion"] == '1'){
-              sadCount = sadCount + 1
-            } 
-          }
-                    
-          var max = happyCount; 
-          var maxVarName = 'h'; 
-
-          if (confusedCount > max) {
-            max = confusedCount ;
-            maxVarName = 'c';
+          for (var j = 0; j < userTasks.length; j++) {
+            var val = {};
+            val["date"] = formattedDate;
+            val["emotion"] = userTasks[j]["emotion"];
+            res.push(val);
           }
 
-          if (sadCount > max) {
-            max = sadCount;
-            maxVarName = 's';
-          }
-
-          if (angryCount > max) {
-            max = angryCount;
-            maxVarName = 'a';
-          }
-
-          if (maxVarName === 'h') {
-            res[formattedDate] = {selected: true, marked: true, selectedColor: '#4CF71F' }
-          } else if (maxVarName === 's') {
-            res[formattedDate] = {selected: true, marked: true, selectedColor: '#C0D2D6' } // #C0D2D6 #D9FCA4
-          } else if (maxVarName === 'a') {
-            res[formattedDate] = {selected: true, marked: true, selectedColor: '#FC2626' } 
-          } else if (maxVarName === 'c') {
-            res[formattedDate] = {selected: true, marked: true, selectedColor: '#26D3FC' }  
-          }
         }
         setSelected(res);
       }
-    ).catch(err => {err.message})
+    ).catch(err => { err.message })
   }
-    
 
 
 
-  
+
+
 
   const emotion_data = {
     labels: lastFiveDates,
-    legend: ["In Progress", "No", "Yes" ],
-    data: goals, 
-    barColors: ["#5CC6F7", "#F7885C", "#17F538"]
+    legend: ["In Progress", "No", "Yes"],
+    data: goals,
+    barColors: ["#B0DAFF", "#F7885C", "#98D8AA"]
   };
 
-  const getWeightData = async() => {
+  const getWeightData = async () => {
     await getDocs(
       query(weightRef, where("email", "==", auth.currentUser.email))
     ).then((snap) => {
       let weight_data = [];
-      for (var i=0; i < snap.docs.length; i++){
+      for (var i = 0; i < snap.docs.length; i++) {
         weight_data.push({
           ...snap.docs[i].data(),
           id: snap.docs[i].id
         })
-      
+
       }
       // console.log("--weufht", weight_data);
       setID(weight_data[0].id);
@@ -285,7 +384,7 @@ function Management() {
       const lastSevenDates = [];
       for (let i = 0; i < 7; i++) {
         const date = new Date();
-        date.setDate(currentDate.getDate() -6 + i);
+        date.setDate(currentDate.getDate() - 6 + i);
         const day = date.getDate();
         const month = date.getMonth() + 1; // Month is zero-indexed, add 1 to get correct month
         const year = date.getFullYear().toString().slice(-2); // Get last 2 digits of year
@@ -294,7 +393,7 @@ function Management() {
         lastSevenDays.push(dateString);
         lastSevenDates.push(dayStr);
       }
-      
+
       for (var day in lastSevenDays) {
         var test = lastSevenDays[day];
         if (weight_data[0]['weights'][test] !== undefined) {
@@ -316,7 +415,7 @@ function Management() {
       setWeightData(weight_data);
       setDatesData(lastSevenDates);
       setWeightsData(weights);
-    }).catch((err) => Alert.alert(err.message)); 
+    }).catch((err) => Alert.alert(err.message));
   }
 
   useEffect(() => {
@@ -354,38 +453,38 @@ function Management() {
     {
       title: 'Goal Management',
       content: <StackedBarChart
-              data={emotion_data}
-              width={screenWidth}
-              height={220}
-              chartConfig={{
-                backgroundColor: '#1cc910',
-                backgroundGradientFrom: '#eff3ff',
-                backgroundGradientTo: '#efefef',
-                decimalPlaces: 2,
-                color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                style: {
-                  borderRadius: 16,
-                },
-              }}
-              style={{
-                marginVertical: 8,
-                borderRadius: 16,
-              }}
-    />
+        data={emotion_data}
+        width={screenWidth}
+        height={220}
+        chartConfig={{
+          backgroundColor: '#1cc910',
+          backgroundGradientFrom: '#eff3ff',
+          backgroundGradientTo: '#efefef',
+          decimalPlaces: 2,
+          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+          style: {
+            borderRadius: 16,
+          },
+        }}
+        style={{
+          marginVertical: 8,
+          borderRadius: 16,
+        }}
+      />
     },
     {
       title: 'Emotion Calendar',
-      content: <EmotionCalendar selectedDays={selected}/>
+      content: <EmotionCalendar selectedDays={selected} />
     },
     {
       title: 'Weight Management',
       content: <LineChart
-                data={data}
-                width={screenWidth}
-                height={220}
-                chartConfig={chartConfig}
-                bezier
-                />
+        data={data}
+        width={screenWidth}
+        height={220}
+        chartConfig={chartConfig}
+        bezier
+      />
     }
   ];
 
@@ -393,14 +492,14 @@ function Management() {
 
     return (
       <SafeAreaView style={styles.container}>
-      <View style={styles.accordHeader}>
-        <Text style={styles.accordTitle}>{ section.title }</Text>
-        <Icon name={ isActive ? 'chevron-up' : 'chevron-down' }
-              size={20} color="#bbb" />
-       </View>
+        <View style={styles.accordHeader}>
+          <Text style={styles.accordTitle}>{section.title}</Text>
+          <Icon name={isActive ? 'chevron-up' : 'chevron-down'}
+            size={20} color="#bbb" />
+        </View>
 
       </SafeAreaView>
-      
+
     );
   };
 
@@ -427,14 +526,14 @@ function Management() {
   }
 
   return (
-    <SafeAreaView style={styles.container} onPress={ () => setModalVisible(false)}>
+    <SafeAreaView style={styles.container} onPress={() => setModalVisible(false)}>
       <AccordionList
         list={sections}
         header={renderHeader}
         body={renderContent}
         onToggle={handleOnToggle}
       />
-        <Modal
+      <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
@@ -445,7 +544,7 @@ function Management() {
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
             <View>
-              <TextInput style={styles.modalText} placeholder="weight" keyboardType='numeric' onChangeText={ value => setWeight(value)  }/>
+              <TextInput style={styles.modalText} placeholder="weight" keyboardType='numeric' onChangeText={value => setWeight(value)} />
             </View>
             <Pressable
               style={[styles.button, styles.buttonClose]}
@@ -459,16 +558,16 @@ function Management() {
             </Pressable>
           </View>
         </View>
-        </Modal>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={styles.touchableOpacityStyle}
-          onPress={() => setModalVisible(true)}>
-          <Image
-            source = {require('../images/plus.png')}
-            style={styles.floatingButtonStyle}
-          />
-        </TouchableOpacity>
+      </Modal>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        style={styles.touchableOpacityStyle}
+        onPress={() => setModalVisible(true)}>
+        <Image
+          source={require('../images/plus.png')}
+          style={styles.floatingButtonStyle}
+        />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -482,7 +581,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#aaaaaa',
     color: 'blue',
     flexDirection: 'row',
-    justifyContent:'space-between',
+    justifyContent: 'space-between',
     marginBottom: 4
   },
   accordTitle: {
@@ -590,29 +689,38 @@ const styles = StyleSheet.create({
     height: 30,
     borderRadius: 15,
     backgroundColor: '#4CF71F',
-    marginRight:5
+    marginRight: 5
   },
   circleConfused: {
     width: 30,
     height: 30,
     borderRadius: 15,
     backgroundColor: '#26D3FC',
-    marginRight:5
+    marginRight: 5
   },
   circleAngry: {
     width: 30,
     height: 30,
     borderRadius: 15,
     backgroundColor: '#FC2626',
-    marginRight:5
+    marginRight: 5
   },
   circleSad: {
     width: 30,
     height: 30,
     borderRadius: 15,
     backgroundColor: '#C0D2D6',
-    marginRight:5
-  }
+    marginRight: 5
+  },
+  pieContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingLeft: 50
+  },
+  pieChart: {
+    height: 200,
+  },
 });
 
 export default Management;
