@@ -217,13 +217,7 @@ function Management() {
               sadCount = sadCount + 1
             } 
           }
-
-          // console.log("-ha", happyCount);
-          // console.log("-ha", sadCount);
-          // console.log("-ha", angryCount);
-          // console.log("-ha", confusedCount);
-          
-          
+                    
           var max = happyCount; 
           var maxVarName = 'h'; 
 
@@ -242,7 +236,6 @@ function Management() {
             maxVarName = 'a';
           }
 
-          // console.log("--", maxVarName);
           if (maxVarName === 'h') {
             res[formattedDate] = {selected: true, marked: true, selectedColor: '#4CF71F' }
           } else if (maxVarName === 's') {
@@ -253,7 +246,6 @@ function Management() {
             res[formattedDate] = {selected: true, marked: true, selectedColor: '#26D3FC' }  
           }
         }
-        // console.log("---res",res);
         setSelected(res);
       }
     ).catch(err => {err.message})

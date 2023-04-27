@@ -511,8 +511,8 @@ function HomeScreen({ navigation }) {
               <CollapsibleView title="Past" inner="false">
                 {pastActivities.map((activity) => (
                   <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
-                    {activity.tasks.map((task) => (
-                      <View style={{ display: 'flex', flexDirection: 'row' }}>
+                    {activity.tasks.map((task, index) => (
+                      <View key={index} style={{ display: 'flex', flexDirection: 'row' }} >
                         <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
                         <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
                         <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
