@@ -19,7 +19,7 @@ function ProfileScreen() {
     const [genre, setGenre] = useState("");
     const [degree, setDegree] = useState("");
     const [course, setCourse] = useState("");
-  
+
     const citiesRef2 =  collection(db, "user");
     const [loading, setLoading] = useState(true);
   
@@ -52,7 +52,8 @@ function ProfileScreen() {
         genre: genre,
         hobbies: hobbi,
         phoneNumber: userData.phoneNumber,
-        weight: userData.weight
+        weight: userData.weight,
+        dob: userData.dob
       }).then(() => {
         // console.log('User Updated!');
         Alert.alert(
@@ -138,7 +139,7 @@ function ProfileScreen() {
         </View>
         <View style={styles.inputContainer}> 
           <TextInput
-            style={styles.input} placeholder="DOB" placeholderTextColor='black'  
+            style={styles.input} placeholder="DOB (MM/DD/YYYY)" placeholderTextColor='black'  
             value={userData ? userData.dob : ''}
             onChangeText={(txt) => setUserData({...userData, dob: txt})}
             autoCorrect={false}
@@ -153,16 +154,6 @@ function ProfileScreen() {
             keyboardType='numeric'
           />    
         </View>
-        {/* <View style={styles.inputContainer}>
-          <MultipleSelectList 
-            setSelected={(val) => setSelected(val)} 
-            data={hobbies} 
-            save="value"
-            label="hobbies"
-            boxStyles={{marginTop:10, width: '100%'}}
-            placeholder='Select Hobbies'
-        />
-        </View> */}
         <View style={styles.inputContainer}>
           <SelectList 
             setSelected={(val) => setDegree(val)} 
@@ -171,7 +162,7 @@ function ProfileScreen() {
             label="degrees"
             boxStyles={{marginTop:10, width: '100%'}}
             placeholder='Select Degree'
-            defaultOption={{'key': '1', value: 'MS (Science)'}}
+            // defaultOption={{'key': '1', value: 'MS (Science)'}}
         />
         </View>
         <View style={styles.inputContainer}>
@@ -182,7 +173,7 @@ function ProfileScreen() {
             label="courses"
             boxStyles={{marginTop:10, width: '100%'}}
             placeholder='Select Course'
-            defaultOption={{'key': '1', value: 'Computer Science'}}
+            // defaultOption={{'key': '1', value: 'Computer Science'}}
         />
         </View>
         {/* <View style={styles.inputContainer}>

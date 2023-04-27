@@ -116,10 +116,10 @@ const RegisterView = () => {
     ]
 
     const emotions = [
-        {key:'1', value:'High'},
-        {key:'2', value:'Medium'},
-        {key:'3', value:'Low'},
-        
+        {key:'1', value:'Happy'},
+        {key:'2', value:'Sad'},
+        {key:'3', value:'Confused'},
+        {key:'4', value:'Angry'}
     ]
 
 
@@ -158,11 +158,11 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = "      Enter your First name"
+                    placeholder = "Enter your First name"
                     value={firstName}
                     onChangeText={ value => setFirstName(value)  }
                     // style={styles.inputText}
-                    style={{flex: 1}}
+                    style={styles.inputTextInput}
                     placeholderTextColor="black"
                     />
                 </View>
@@ -170,11 +170,11 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = "      Enter your Last name"
+                    placeholder = "Enter your Last name"
                     value={lastName}
                     onChangeText={ value => setLastName(value)  }
                     // style={styles.inputText}
-                    style={{flex: 1}}
+                    style={styles.inputTextInput}
                     placeholderTextColor="black"
                     />
                 </View>
@@ -183,11 +183,11 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                 <TextInput
-                    placeholder = "      Enter your Email"
+                    placeholder = "Enter your Email"
                     value={email}
                     onChangeText={ value => setEmail(value)  }
                     // style={styles.inputText}
-                    style={{flex: 1}}
+                    style={styles.inputTextInput}
                     placeholderTextColor="black"
                     />
                 </View>
@@ -196,10 +196,10 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                 <TextInput
-                placeholder = "      Enter your password"
+                placeholder = "Enter your password"
                 value={password}
                 onChangeText={ value => setPassword(value)  }
-                style={{flex: 1}}
+                style={styles.inputTextInput}
                 // placeholderTextColor="black"
                 secureTextEntry
                 placeholderTextColor='black'
@@ -210,11 +210,11 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = "      Reenter the password"
+                    placeholder = "Reenter the password"
                     value={confirmPassword}
                     onChangeText={ value => setConfirmPassword(value)  }
                     // style={styles.inputText}
-                    style={{flex: 1}}
+                    style={styles.inputTextInput}
                     // placeholderTextColor="black"
                     underlineColorAndroid="transparent"
                     secureTextEntry
@@ -225,8 +225,8 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                 <TextInput
-                    style={{flex: 1}}
-                    placeholder="      Date of Birth"
+                    style={styles.inputTextInput}
+                    placeholder="Date of Birth"
                     underlineColorAndroid="transparent"
                     value={pickedDate}
                     placeholderTextColor='black'
@@ -250,10 +250,10 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = "      Enter Phone Number"
+                    placeholder = "Enter Phone Number"
                     value={phoneNumber}
                     onChangeText={ value => setPhoneNumber(value)  }
-                    style={{flex: 1}}
+                    style={styles.inputTextInput}
                     underlineColorAndroid="transparent"
                     keyboardType='numeric'
                     placeholderTextColor='black'
@@ -263,10 +263,10 @@ const RegisterView = () => {
             <View>
                 <View style={styles.sectionStyle}>
                     <TextInput
-                    placeholder = "      Weight in Lbs"
+                    placeholder = "Weight in Lbs"
                     value={weight}
                     onChangeText={ value => setWeight(value)  }
-                    style={{flex: 1}}
+                    style={styles.inputTextInput}
                     underlineColorAndroid="transparent"
                     keyboardType='numeric'
                     placeholderTextColor='black'
@@ -386,6 +386,11 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         marginTop: 10
     },
+    inputTextInput:{
+        paddingHorizontal: 15,
+        paddingVertical: 15,
+        flex: 1
+    },
     buttonView: {
         width: '100%',
         justifyContent: 'center',
@@ -464,7 +469,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderWidth: 0.5,
         borderColor: '#000',
-        height: 40,
+        height: 45,
         borderRadius: 5,
         margin: 10,
     },
