@@ -25,6 +25,7 @@ import { LongPressGestureHandler } from 'react-native-gesture-handler';
 import Popup from './Popup';
 import { ImageBackground } from 'react-native';
 import TaskPopup from './TaskPopup';
+import ToastMessage from './ToastMessage';
 
 // import { validate } from 'react-native-web/dist/cjs/exports/StyleSheet/validate';
 function ManagementView({ navigation }) {
@@ -88,6 +89,8 @@ function HomeScreen({ navigation }) {
   const [popupDesc, setPopupDesc] = useState('');
   const [popupIsCompleted, setPopupIsCompleted] = useState('');
   const [isTaskPopupVisible, setIsTaskPopupVisible] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
 
   // var popupDate = '';
   // var popupTaskName = '';
@@ -331,10 +334,7 @@ function HomeScreen({ navigation }) {
       setDescValue('');
       setSelectedEmotion('');
       setSelectedStatus('');
-      Alert.alert(
-        'Activity created..!',
-        'The new activity is added'
-      );
+      setToastVisible(true);
     });
   }
 
@@ -435,6 +435,9 @@ function HomeScreen({ navigation }) {
     setPopupSelectedValue('');
   };
 
+  const hideToastMessage = () => {
+    setToastVisible(false);
+  };
 
 
   const getData = async () => {
@@ -470,6 +473,7 @@ function HomeScreen({ navigation }) {
         }
       }
       setActivitiesExist(activitiesByDateList.length > 0 ? true : false);
+      setLoaded(true);
       //setActivitiesExist(false);
       activitiesByDateList = activitiesByDateList.sort(compareByDateAsc);
       getPastActivities(activitiesByDateList);
@@ -498,80 +502,85 @@ function HomeScreen({ navigation }) {
     <ImageBackground source={require('../assets/bg1.jpg')} style={styles.bgImage}>
       <View style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={{ alignItems: 'center' }} style={{ flexGrow: 1, padding: 10 }}>
-          {!activitiesExist ? (
+          {(!activitiesExist && !loaded) ? (
             <View style={styles.backgroundImage}>
-              <Image source={require('../assets/icon-tasks.png')} style={{ width: 75, height: 75, opacity: 0.75 }}></Image>
-              <Text style={styles.textForNoActivities}>There are no activities logged yet.</Text>
-              <Text style={styles.textForNoActivities}>Please click on (+) to add an activity/goal</Text>
+
             </View>
           ) :
+            (!activitiesExist && loaded) ? (
+              <View style={styles.backgroundImage}>
+                <Image source={require('../assets/icon-tasks.png')} style={{ width: 75, height: 75, opacity: 0.75 }}></Image>
+                <Text style={styles.textForNoActivities}>There are no activities logged yet.</Text>
+                <Text style={styles.textForNoActivities}>Please click on (+) to add an activity/goal</Text>
+              </View>
+            ) :
 
-            /* View if there are existing activities by user */
-            <View>
-              <CollapsibleView title="Past" inner="false">
-                {pastActivities.map((activity) => (
-                  <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
-                    {activity.tasks.map((task, index) => (
-                      <View key={index} style={{ display: 'flex', flexDirection: 'row' }} >
-                        <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
-                        <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
-                          <Text style={{ fontWeight: 'bold', fontSize: 16, marginRight: 5, textAlign: 'left', flex: 3 }}>{task.taskname}</Text>
-                        </LongPressGestureHandler>
-                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
-                          <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
-                        </LongPressGestureHandler>
-                      </View>
-                    ))}
-                  </CollapsibleView>
-                ))}
-                {pastActivities.length == 0 ? (<View styles={{ marginBottom: 0 }}><Title style={{ textAlign: 'center', color: 'black', fontStyle: 'italic', fontSize: 18 }}>No records</Title></View>) : <View></View>}
-              </CollapsibleView>
-              <CollapsibleView title="Present" inner="false">
-                {currentDayActivities.map((activity) => (
-                  <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
-                    {activity.tasks.map((task) => (
-                      <View style={{ display: 'flex', flexDirection: 'row' }}>
-                        <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
-                        <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
-                          <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
-                        </LongPressGestureHandler>
-                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
-                          <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
-                        </LongPressGestureHandler>
-                      </View>
-                    ))}
-                  </CollapsibleView>
-                ))}
-                {currentDayActivities.length == 0 ? (<View styles={{ marginBottom: 0 }}><Title style={{ textAlign: 'center', color: 'black', fontStyle: 'italic', fontSize: 18 }}>No records</Title></View>) : <View></View>}
-              </CollapsibleView>
-              <CollapsibleView title="Future" inner="false">
-                {futureActivities.map((activity) => (
-                  <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
-                    {activity.tasks.map((task) => (
-                      <View style={{ display: 'flex', flexDirection: 'row' }}>
-                        <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
-                        <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
-                          <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
-                        </LongPressGestureHandler>
-                        <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
-                          <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
-                        </LongPressGestureHandler>
-                      </View>
-                    ))}
-                  </CollapsibleView>
-                ))}
-                {futureActivities.length == 0 ? (<View styles={{ marginBottom: 0 }}><Title style={{ textAlign: 'center', color: 'black', fontStyle: 'italic', fontSize: 18 }}>No records</Title></View>) : <View></View>}
-              </CollapsibleView>
+              /* View if there are existing activities by user */
+              <View>
+                <CollapsibleView title="Past" inner="false">
+                  {pastActivities.map((activity) => (
+                    <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
+                      {activity.tasks.map((task, index) => (
+                        <View key={index} style={{ display: 'flex', flexDirection: 'row' }} >
+                          <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
+                          <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
+                          <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 16, marginRight: 5, textAlign: 'left', flex: 3 }}>{task.taskname}</Text>
+                          </LongPressGestureHandler>
+                          <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
+                            <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
+                          </LongPressGestureHandler>
+                        </View>
+                      ))}
+                    </CollapsibleView>
+                  ))}
+                  {pastActivities.length == 0 ? (<View styles={{ marginBottom: 0 }}><Title style={{ textAlign: 'center', color: 'black', fontStyle: 'italic', fontSize: 18 }}>No records</Title></View>) : <View></View>}
+                </CollapsibleView>
+                <CollapsibleView title="Present" inner="false">
+                  {currentDayActivities.map((activity) => (
+                    <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
+                      {activity.tasks.map((task) => (
+                        <View style={{ display: 'flex', flexDirection: 'row' }}>
+                          <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
+                          <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
+                          <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
+                          </LongPressGestureHandler>
+                          <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
+                            <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
+                          </LongPressGestureHandler>
+                        </View>
+                      ))}
+                    </CollapsibleView>
+                  ))}
+                  {currentDayActivities.length == 0 ? (<View styles={{ marginBottom: 0 }}><Title style={{ textAlign: 'center', color: 'black', fontStyle: 'italic', fontSize: 18 }}>No records</Title></View>) : <View></View>}
+                </CollapsibleView>
+                <CollapsibleView title="Future" inner="false">
+                  {futureActivities.map((activity) => (
+                    <CollapsibleView key={activity.date} title={format(new Date(activity.date), "dd MMM yy")} inner="true">
+                      {activity.tasks.map((task) => (
+                        <View style={{ display: 'flex', flexDirection: 'row' }}>
+                          <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
+                          <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
+                          <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
+                            <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
+                          </LongPressGestureHandler>
+                          <LongPressGestureHandler minDurationMs={400} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
+                            <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
+                          </LongPressGestureHandler>
+                        </View>
+                      ))}
+                    </CollapsibleView>
+                  ))}
+                  {futureActivities.length == 0 ? (<View styles={{ marginBottom: 0 }}><Title style={{ textAlign: 'center', color: 'black', fontStyle: 'italic', fontSize: 18 }}>No records</Title></View>) : <View></View>}
+                </CollapsibleView>
 
-            </View>
+              </View>
           }
 
           <Popup key={popupTaskName} isVisible={isPopupVisible} onClose={() => setIsPopupVisible(false)} onOptionPress={handleOptionPress} selectedEmotion={popupSelectedValue} date={popupDate} taskname={popupTaskName} />
           <TaskPopup key={popupTaskName + 1} isVisible={isTaskPopupVisible} onClose={handleTaskPopupClose} selectedEmotion={popupSelectedValue} date={popupDate} taskname={popupTaskName} desc={popupDesc} isCompleted={popupIsCompleted} />
-
+          
           {/* Modal view on click of (+) */}
           <Modal
             visible={isModalVisible}
@@ -693,6 +702,9 @@ function HomeScreen({ navigation }) {
           </Modal>
 
         </ScrollView>
+        {toastVisible && (
+            <ToastMessage message={'Activity created successfully..! '} type={"default"} duration={3000} onHide={hideToastMessage} />
+          )}
         <TouchableOpacity style={styles.floatingButton} onPress={() => setModalVisible(true)}>
           <MaterialIcons name="add" size={24} color="white" />
         </TouchableOpacity>
