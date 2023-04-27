@@ -25,6 +25,7 @@ import { Title } from 'react-native-paper';
 import { LongPressGestureHandler } from 'react-native-gesture-handler';
 import Popup from './Popup';
 import { ImageBackground } from 'react-native';
+import TaskPopup from './TaskPopup';
 
 // import { validate } from 'react-native-web/dist/cjs/exports/StyleSheet/validate';
 function ManagementView({ navigation }) {
@@ -85,6 +86,9 @@ function HomeScreen({ navigation }) {
   const [popupSelectedValue, setPopupSelectedValue] = useState('');
   const [popupDate, setPopupDate] = useState('');
   const [popupTaskName, setPopupTaskName] = useState('');
+  const [popupDesc, setPopupDesc] = useState('');
+  const [popupIsCompleted, setPopupIsCompleted] = useState('');
+  const [isTaskPopupVisible, setIsTaskPopupVisible] = useState(false);
 
   // var popupDate = '';
   // var popupTaskName = '';
@@ -383,6 +387,29 @@ function HomeScreen({ navigation }) {
   }, []);
 
 
+  const handleTaskLongPress = useCallback((event, task, d) => {
+    const { nativeEvent } = event;
+    if (nativeEvent.state === State.ACTIVE) {
+      // Show popup
+      setPopupTaskName(task.taskname);
+      setPopupDate(d);
+      setPopupSelectedValue(task.emotion);
+      setPopupDesc(task.desc);
+      setPopupIsCompleted(task.completed);
+      setIsTaskPopupVisible(true);
+    }
+  }, []);
+
+  const handleTaskPopupClose = () => {
+    // Show popup
+    setIsTaskPopupVisible(false);
+    setPopupTaskName('');
+    setPopupDate('');
+    setPopupSelectedValue('');
+    setPopupDesc('');
+    setPopupIsCompleted('');
+  };
+
   const handleOptionPress = (value, date, taskname) => {
 
     for (let i = 0; i < activitiesByDateList.length; i++) {
@@ -489,7 +516,9 @@ function HomeScreen({ navigation }) {
                       <View style={{ display: 'flex', flexDirection: 'row' }}>
                         <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
                         <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                        <Text style={{ fontWeight: 'bold', fontSize: 16, marginRight: 5, textAlign: 'left', flex: 3 }}>{task.taskname}</Text>
+                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
+                          <Text style={{ fontWeight: 'bold', fontSize: 16, marginRight: 5, textAlign: 'left', flex: 3 }}>{task.taskname}</Text>
+                        </LongPressGestureHandler>
                         <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
                           <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
                         </LongPressGestureHandler>
@@ -506,7 +535,9 @@ function HomeScreen({ navigation }) {
                       <View style={{ display: 'flex', flexDirection: 'row' }}>
                         <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
                         <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                        <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
+                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
+                          <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
+                        </LongPressGestureHandler>
                         <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
                           <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
                         </LongPressGestureHandler>
@@ -523,7 +554,9 @@ function HomeScreen({ navigation }) {
                       <View style={{ display: 'flex', flexDirection: 'row' }}>
                         <CustomCheckbox onChangeFunction={testFunction} givenValue={task.completed} date={activity.date} taskname={task.taskname}></CustomCheckbox>
                         <Text style={{ fontWeight: 'bold', flex: 1 }}></Text>
-                        <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
+                        <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleTaskLongPress(event, task, activity.date)}>
+                          <Text style={{ fontWeight: 'bold', fontSize: 16, flex: 3, marginTop: 5, marginRight: 5, textAlign: 'left' }}>{task.taskname}</Text>
+                        </LongPressGestureHandler>
                         <LongPressGestureHandler minDurationMs={800} onHandlerStateChange={(event) => handleLongPress(event, task, activity.date)}>
                           <View style={{ flex: 4 }}>{getEmoji(task.emotion)}</View>
                         </LongPressGestureHandler>
@@ -538,6 +571,7 @@ function HomeScreen({ navigation }) {
           }
 
           <Popup key={popupTaskName} isVisible={isPopupVisible} onClose={() => setIsPopupVisible(false)} onOptionPress={handleOptionPress} selectedEmotion={popupSelectedValue} date={popupDate} taskname={popupTaskName} />
+          <TaskPopup key={popupTaskName + 1} isVisible={isTaskPopupVisible} onClose={handleTaskPopupClose} selectedEmotion={popupSelectedValue} date={popupDate} taskname={popupTaskName} desc={popupDesc} isCompleted={popupIsCompleted} />
 
           {/* Modal view on click of (+) */}
           <Modal
